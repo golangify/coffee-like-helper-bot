@@ -1,0 +1,66 @@
+package workermailer
+
+import (
+	"coffee-like-helper-bot/config"
+	"coffee-like-helper-bot/models"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"gorm.io/gorm"
+	"time"
+)
+
+type Mailer struct {
+	bot      *tgbotapi.BotAPI
+	database *gorm.DB
+	config   *config.Config
+}
+
+func New(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Config) *Mailer {
+	w := &Mailer{
+		bot:      bot,
+		database: database,
+		config:   config,
+	}
+
+	return w
+}
+
+func (w *Mailer) mail(users []models.User, msg *tgbotapi.MessageConfig) error {
+	t := time.NewTicker(time.Second)
+	defer t.Stop()
+	for _, user := range users {
+		<-t.C
+		msg.BaseChat.ChatID = user.TelegramID
+		w.bot.Send(msg)
+	}
+	return nil
+}
+
+func (w *Mailer) AllUsers(msg *tgbotapi.MessageConfig) error {
+	var allUsers []models.User
+	err := w.database.Find(&allUsers).Error
+	if err != nil {
+		return err
+	}
+
+	return w.mail(allUsers, msg)
+}
+
+func (w *Mailer) Barista(msg *tgbotapi.MessageConfig) error {
+	var baristas []models.User
+	err := w.database.Find(&baristas, "is_barista = ? OR is_administrator = ?", true, true).Error
+	if err != nil {
+		return err
+	}
+
+	return w.mail(baristas, msg)
+}
+
+func (w *Mailer) Administrator(msg *tgbotapi.MessageConfig) error {
+	var admins []models.User
+	err := w.database.Find(&admins, "is_administrator = ?", true).Error
+	if err != nil {
+		return err
+	}
+
+	return w.mail(admins, msg)
+}

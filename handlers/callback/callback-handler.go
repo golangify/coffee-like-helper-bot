@@ -54,6 +54,10 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandle
 			function: h.pageAllMenus,
 		},
 		{
+			regexp:   regexp.MustCompile(`^page product_from_menu (\d+) (\d+)$`),
+			function: h.pageProductFromMenu,
+		},
+		{
 			regexp:   regexp.MustCompile(`^nothing$`),
 			function: func(_ *tgbotapi.Update, _ *models.User, _ []string) {},
 		},
