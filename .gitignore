@@ -1,0 +1,4 @@
+tests/
+*.json
+*.db
+coffee-like-helper-bot
