@@ -107,6 +107,11 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandle
 			function:   h.editProductImage,
 			isForStaff: true,
 		},
+		{
+			regexp:     regexp.MustCompile(`^delete_product (\d+)$`),
+			function:   h.deleteProduct,
+			isForStaff: true,
+		},
 	}
 
 	return h
