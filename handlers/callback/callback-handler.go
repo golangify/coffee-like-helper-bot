@@ -2,9 +2,9 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/config"
-	"coffee-like-helper-bot/workers/mailer"
 	"coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	"coffee-like-helper-bot/workers/mailer"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"

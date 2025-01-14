@@ -2,16 +2,16 @@ package updatehandler
 
 import (
 	"coffee-like-helper-bot/config"
-	"coffee-like-helper-bot/view/user"
 	callbackhandler "coffee-like-helper-bot/handlers/callback"
 	commandhandler "coffee-like-helper-bot/handlers/command"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	"coffee-like-helper-bot/view/user"
 	"coffee-like-helper-bot/workers/mailer"
 
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"fmt"
 )
 
 type UpdateHandler struct {

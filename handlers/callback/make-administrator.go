@@ -27,7 +27,7 @@ func (h *CallbackHandler) makeAdministrator(update *tgbotapi.Update, user *model
 		panic(err)
 	}
 
-	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, 
+	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID,
 		*viewuser.InlineKeyboardEditList(&euser),
 	))
 
@@ -36,6 +36,6 @@ func (h *CallbackHandler) makeAdministrator(update *tgbotapi.Update, user *model
 	))
 	notifMsg.ReplyMarkup = viewuser.InlineKeyboardEdit(&euser)
 	h.mailer.Administrator(&notifMsg)
-	
+
 	h.bot.Send(tgbotapi.NewMessage(euser.TelegramID, "Тебя назначили на роль администратора в боте!\n\nНажимай -> /help"))
 }

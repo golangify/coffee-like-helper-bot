@@ -27,7 +27,7 @@ func (h *CallbackHandler) removeAdministrator(update *tgbotapi.Update, user *mod
 		panic(err)
 	}
 
-	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, 
+	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID,
 		*viewuser.InlineKeyboardEditList(&euser),
 	))
 

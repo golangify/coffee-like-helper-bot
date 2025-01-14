@@ -27,7 +27,7 @@ func (h *CallbackHandler) makeBarista(update *tgbotapi.Update, user *models.User
 		panic(err)
 	}
 
-	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, 
+	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID,
 		*viewuser.InlineKeyboardEditList(&euser),
 	))
 
@@ -36,6 +36,6 @@ func (h *CallbackHandler) makeBarista(update *tgbotapi.Update, user *models.User
 	))
 	notifMsg.ReplyMarkup = viewuser.InlineKeyboardEdit(&euser)
 	h.mailer.Administrator(&notifMsg)
-	
+
 	h.bot.Send(tgbotapi.NewMessage(euser.TelegramID, "Тебя назначили на роль бариста в боте!\n\nНажимай -> /help"))
 }

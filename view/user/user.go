@@ -13,7 +13,7 @@ func Message(chatID int64, user *models.User) tgbotapi.MessageConfig {
 		"\n\n CreatedAt: ", user.CreatedAt,
 		"\n\n UpdatedAt: ", user.UpdatedAt,
 		"\n\n TelegramID: ", user.TelegramID,
-		"\n\n IsBarista: ",user.IsBarista,
+		"\n\n IsBarista: ", user.IsBarista,
 		"\n\n IsAdministrator: ", user.IsAdministrator,
 		"\n\n FirstName: ", user.FirstName,
 		"\n\n LastName: ", user.LastName,
@@ -47,20 +47,20 @@ func InlineKeyboardEditList(user *models.User) *tgbotapi.InlineKeyboardMarkup {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup()
 	if user.IsBarista {
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить из бариста", fmt.Sprint("remove_barista ", user.ID))),
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить из бариста", fmt.Sprint("remove_barista ", user.ID))),
 		)
 	} else {
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать бариста", fmt.Sprint("make_barista ", user.ID))),
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать бариста", fmt.Sprint("make_barista ", user.ID))),
 		)
 	}
 	if user.IsAdministrator {
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить из администраторов", fmt.Sprint("remove_administrator ", user.ID))),
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить из администраторов", fmt.Sprint("remove_administrator ", user.ID))),
 		)
 	} else {
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать администратором", fmt.Sprint("make_administrator ", user.ID))),
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать администратором", fmt.Sprint("make_administrator ", user.ID))),
 		)
 	}
 
