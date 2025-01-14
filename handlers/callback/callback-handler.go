@@ -2,6 +2,7 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/config"
+	"coffee-like-helper-bot/workers/mailer"
 	"coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
 	"fmt"
@@ -25,18 +26,26 @@ type CallbackHandler struct {
 	stepHandler *stephandler.StepHandler
 
 	callbacks []*callback
+
+	mailer *workermailer.Mailer
 }
 
-func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler) *CallbackHandler {
+func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer) *CallbackHandler {
 	h := &CallbackHandler{
 		config:   cfg,
 		bot:      bot,
 		database: database,
 
 		stepHandler: stepHandler,
+
+		mailer: mailer,
 	}
 
 	h.callbacks = []*callback{
+		{
+			regexp:   regexp.MustCompile(`^nothing$`),
+			function: func(_ *tgbotapi.Update, _ *models.User, _ []string) {},
+		},
 		{
 			regexp:   regexp.MustCompile(`^menu (\d+)$`),
 			function: h.menu,
@@ -56,10 +65,6 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandle
 		{
 			regexp:   regexp.MustCompile(`^page product_from_menu (\d+) (\d+)$`),
 			function: h.pageProductFromMenu,
-		},
-		{
-			regexp:   regexp.MustCompile(`^nothing$`),
-			function: func(_ *tgbotapi.Update, _ *models.User, _ []string) {},
 		},
 		{
 			regexp:     regexp.MustCompile(`^add_product_to_menu (\d+)$`),
@@ -114,6 +119,31 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandle
 		{
 			regexp:     regexp.MustCompile(`^delete_product (\d+)$`),
 			function:   h.deleteProduct,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^edit_user (\d+)$`),
+			function:   h.editUser,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^make_barista (\d+)$`),
+			function:   h.makeBarista,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^remove_barista (\d+)$`),
+			function:   h.removeBarista,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^make_administrator (\d+)$`),
+			function:   h.makeAdministrator,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^remove_administrator (\d+)$`),
+			function:   h.removeAdministrator,
 			isForStaff: true,
 		},
 	}

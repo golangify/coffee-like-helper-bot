@@ -9,7 +9,7 @@ import (
 func (h *CommandHandler) Start(update *tgbotapi.Update, user *models.User, _ []string) {
 	msg := tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint(
 		"Привет, <b>", user.FirstName, "</b>!\n\n",
-		"В это боте можно просматривать ТТК напитков.\n\n",
+		"В этом боте можно просматривать ТТК напитков.\n\n",
 		"/menus - список всех меню\n",
 		"/help - все команды бота(<b>обязательно посмотри</b>)",
 	))

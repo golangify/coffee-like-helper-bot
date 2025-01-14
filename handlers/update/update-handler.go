@@ -2,13 +2,16 @@ package updatehandler
 
 import (
 	"coffee-like-helper-bot/config"
+	"coffee-like-helper-bot/view/user"
 	callbackhandler "coffee-like-helper-bot/handlers/callback"
 	commandhandler "coffee-like-helper-bot/handlers/command"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	"coffee-like-helper-bot/workers/mailer"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
+	"fmt"
 )
 
 type UpdateHandler struct {
@@ -20,10 +23,13 @@ type UpdateHandler struct {
 	callbackHandler *callbackhandler.CallbackHandler
 
 	stepHandler *stephandler.StepHandler
+
+	mailer *workermailer.Mailer
 }
 
 func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHandler {
 	stepHandler := stephandler.New(bot)
+	mailer := workermailer.New(bot, database, cfg)
 
 	h := &UpdateHandler{
 		config:   cfg,
@@ -31,9 +37,11 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHan
 		database: database,
 
 		commandHandler:  commandhandler.New(cfg, bot, database, stepHandler),
-		callbackHandler: callbackhandler.New(cfg, bot, database, stepHandler),
+		callbackHandler: callbackhandler.New(cfg, bot, database, stepHandler, mailer),
 
 		stepHandler: stepHandler,
+
+		mailer: mailer,
 	}
 
 	return h
@@ -74,6 +82,14 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 }
 
 func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotapi.User, user *models.User) {
+	if !user.IsBarista && !user.IsAdministrator {
+		msg := tgbotapi.NewMessage(0, fmt.Sprint(viewuser.Text(user), " запрашивает доступ к боту"))
+		msg.ReplyMarkup = viewuser.InlineKeyboardEdit(user)
+		go h.mailer.Administrator(&msg)
+		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Запрос на получение доступа отправлен. Ожидай."))
+		return
+	}
+
 	if h.stepHandler.Process(update, user) {
 		return
 	}
