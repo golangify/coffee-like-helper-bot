@@ -25,7 +25,7 @@ func Message(chatID int64, user *models.User) tgbotapi.MessageConfig {
 }
 
 func Text(user *models.User) string {
-	text := fmt.Sprintf("[%d;%d] ", user.ID, user.TelegramID) + user.FirstName
+	text := /* fmt.Sprintf("[%d;%d] ", user.ID, user.TelegramID) + */ user.FirstName
 	if user.LastName != "" {
 		text += " " + user.LastName
 	}

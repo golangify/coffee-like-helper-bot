@@ -40,7 +40,7 @@ type CommandHandler struct {
 	commands []*command
 }
 
-func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler) *CommandHandler {
+func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler) *CommandHandler {
 	h := &CommandHandler{
 		config:      cfg,
 		bot:         bot,

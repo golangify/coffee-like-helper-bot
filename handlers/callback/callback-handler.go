@@ -30,7 +30,7 @@ type CallbackHandler struct {
 	mailer *workermailer.Mailer
 }
 
-func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer) *CallbackHandler {
+func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer) *CallbackHandler {
 	h := &CallbackHandler{
 		config:   cfg,
 		bot:      bot,

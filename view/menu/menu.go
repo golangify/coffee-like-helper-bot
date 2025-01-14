@@ -40,18 +40,18 @@ func Message(chatID int64, user *models.User, menu *models.Menu, products []mode
 
 func InlineKeyboardEdit(menu *models.Menu) *tgbotapi.InlineKeyboardMarkup {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData("⚙️ редактировать", fmt.Sprint("edit_menu ", menu.ID)),
+		tgbotapi.NewInlineKeyboardButtonData("⚙️редактировать", fmt.Sprint("edit_menu ", menu.ID)),
 	))
 	return &keyboard
 }
 
 func InlineKeyboardEditList(menu *models.Menu) *tgbotapi.InlineKeyboardMarkup {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("добавить напиток", fmt.Sprint("add_product_to_menu ", menu.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить название", fmt.Sprint("edit_menu_name ", menu.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить описание", fmt.Sprint("edit_menu_description ", menu.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить изображение", fmt.Sprint("edit_menu_image ", menu.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить", fmt.Sprint("delete_menu ", menu.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("➕добавить напиток", fmt.Sprint("add_product_to_menu ", menu.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("✏️изменить название", fmt.Sprint("edit_menu_name ", menu.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("📝изменить описание", fmt.Sprint("edit_menu_description ", menu.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🖼изменить изображение", fmt.Sprint("edit_menu_image ", menu.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🗑удалить", fmt.Sprint("delete_menu ", menu.ID))),
 	)
 
 	return &keyboard

@@ -4,6 +4,7 @@ import (
 	"coffee-like-helper-bot/config"
 	callbackhandler "coffee-like-helper-bot/handlers/callback"
 	commandhandler "coffee-like-helper-bot/handlers/command"
+	messagehandler "coffee-like-helper-bot/handlers/message"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
 	"coffee-like-helper-bot/view/user"
@@ -21,6 +22,7 @@ type UpdateHandler struct {
 
 	commandHandler  *commandhandler.CommandHandler
 	callbackHandler *callbackhandler.CallbackHandler
+	messageHandler  *messagehandler.MessageHandler
 
 	stepHandler *stephandler.StepHandler
 
@@ -36,8 +38,9 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHan
 		bot:      bot,
 		database: database,
 
-		commandHandler:  commandhandler.New(cfg, bot, database, stepHandler),
-		callbackHandler: callbackhandler.New(cfg, bot, database, stepHandler, mailer),
+		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, stepHandler),
+		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, stepHandler, mailer),
+		messageHandler:  messagehandler.NewMessageHandler(bot, database),
 
 		stepHandler: stepHandler,
 
@@ -98,8 +101,7 @@ func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotap
 			h.commandHandler.Process(update, user)
 			return
 		} else if update.Message.Text != "" {
-			h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Действие не поддерживается."))
-			// message handler
+			h.messageHandler.Process(update, user)
 			return
 		} else {
 			h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Действие не поддерживается."))

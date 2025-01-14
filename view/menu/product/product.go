@@ -40,17 +40,17 @@ func Message(chatID int64, user *models.User, product *models.Product) tgbotapi.
 
 func InlineKeyboardEdit(product *models.Product) *tgbotapi.InlineKeyboardMarkup {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData("⚙️ редактировать", fmt.Sprint("edit_product ", product.ID)),
+		tgbotapi.NewInlineKeyboardButtonData("⚙️редактировать", fmt.Sprint("edit_product ", product.ID)),
 	))
 	return &keyboard
 }
 
 func InlineKeyboardEditList(product *models.Product) *tgbotapi.InlineKeyboardMarkup {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить название", fmt.Sprint("edit_product_name ", product.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить описание", fmt.Sprint("edit_product_description ", product.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("изменить изображение", fmt.Sprint("edit_product_image ", product.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("удалить", fmt.Sprint("delete_product ", product.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("✏️изменить название", fmt.Sprint("edit_product_name ", product.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("📝изменить описание", fmt.Sprint("edit_product_description ", product.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🖼изменить изображение", fmt.Sprint("edit_product_image ", product.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🗑удалить", fmt.Sprint("delete_product ", product.ID))),
 	)
 
 	return &keyboard
