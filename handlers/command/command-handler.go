@@ -77,22 +77,22 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			},
 			function: h.Menu,
 		},
-		{
-			string:      "/products",
-			description: "список всех позиций",
-			argsRegexp:  regexp.MustCompile(`^\/products$`),
-			function:    nil,
-		},
-		{
-			string:      "/product_[id]",
-			description: "получить напиок по id",
-			argsRegexp:  regexp.MustCompile(`^\/product(?:_| )(\d+)$`),
-			activatorRegexps: []*regexp.Regexp{
-				regexp.MustCompile(`\/product`),
-				regexp.MustCompile(`\/product_$`),
-			},
-			function: h.Product,
-		},
+		// {
+			// string:      "/products",
+			// description: "список всех позиций",
+			// argsRegexp:  regexp.MustCompile(`^\/products$`),
+			// function:    nil,
+		// },
+		// {
+			// string:      "/product_[id]",
+			// description: "получить напиок по id",
+			// argsRegexp:  regexp.MustCompile(`^\/product(?:_| )(\d+)$`),
+			// activatorRegexps: []*regexp.Regexp{
+				// regexp.MustCompile(`\/product`),
+				// regexp.MustCompile(`\/product_$`),
+			// },
+			// function: h.Product,
+		// },
 		{
 			string:      "/addmenu",
 			description: "добавить новое меню",

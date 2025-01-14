@@ -16,11 +16,11 @@ func prepareQueryString(queryString string) string {
 		"а":  "о",
 	}
 
-	queryRuneSlice := []rune(queryString)
+	queryRuneSlice := []rune(strings.ToLower(queryString))
 	if len(queryRuneSlice) > 100 {
 		queryRuneSlice = queryRuneSlice[:100]
-		queryString = string(queryRuneSlice)
 	}
+	queryString = string(queryRuneSlice)
 
 	for s, d := range tokens {
 		queryString = strings.ReplaceAll(queryString, s, d)
@@ -30,6 +30,11 @@ func prepareQueryString(queryString string) string {
 }
 
 func (h *MessageHandler) Search(update *tgbotapi.Update, user *models.User) {
+	if len([]rune(update.Message.Text)) < 3 {
+		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Запрос должен быть больше 3 символов."))
+		return
+	}
+
 	h.database.Create(&models.Search{
 		Text:   update.Message.Text,
 		UserID: user.ID,
@@ -45,7 +50,7 @@ func (h *MessageHandler) Search(update *tgbotapi.Update, user *models.User) {
 
 	var results []models.Product
 	for _, product := range products {
-		if strings.Contains(query, prepareQueryString(product.Name)) {
+		if strings.Contains(prepareQueryString(product.Name), query) {
 			results = append(results, product)
 		}
 	}
