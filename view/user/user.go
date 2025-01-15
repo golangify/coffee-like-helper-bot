@@ -3,6 +3,7 @@ package viewuser
 import (
 	"coffee-like-helper-bot/models"
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -10,14 +11,14 @@ func Message(chatID int64, user *models.User) tgbotapi.MessageConfig {
 
 	msgText := fmt.Sprint(
 		"ID: ", user.ID,
-		"\n\n CreatedAt: ", user.CreatedAt,
-		"\n\n UpdatedAt: ", user.UpdatedAt,
-		"\n\n TelegramID: ", user.TelegramID,
-		"\n\n IsBarista: ", user.IsBarista,
-		"\n\n IsAdministrator: ", user.IsAdministrator,
-		"\n\n FirstName: ", user.FirstName,
-		"\n\n LastName: ", user.LastName,
-		"\n\n UserName: ", user.UserName,
+		"\n CreatedAt: ", user.CreatedAt,
+		"\n UpdatedAt: ", user.UpdatedAt,
+		"\n TelegramID: ", user.TelegramID,
+		"\n IsBarista: ", user.IsBarista,
+		"\n IsAdministrator: ", user.IsAdministrator,
+		"\n FirstName: ", user.FirstName,
+		"\n LastName: ", user.LastName,
+		"\n UserName: ", user.UserName,
 	)
 
 	msg := tgbotapi.NewMessage(chatID, msgText)
