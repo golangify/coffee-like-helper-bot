@@ -3,9 +3,10 @@ package callbackhandler
 import (
 	"coffee-like-helper-bot/models"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) deleteProduct(update *tgbotapi.Update, user *models.User, args []string) {
@@ -48,12 +49,10 @@ func (h *CallbackHandler) stepDeleteProduct(update *tgbotapi.Update, user *model
 
 	if update.Message == nil || update.Message.Text == "" {
 		panic("это не сообщение")
-		return
 	}
 
 	if update.Message.Text != checkPhrase {
 		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Неправильная подтверждающая фраза. Удаление отменено."))
-		return
 	}
 
 	err = h.database.Delete(&product).Error

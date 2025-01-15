@@ -2,6 +2,7 @@ package workernotificator
 
 import (
 	"coffee-like-helper-bot/config"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
 )
@@ -9,7 +10,7 @@ import (
 type Notification struct {
 	UserID   uint
 	Type     string // "all" || "barista" || "administrator"
-	WeekDays string // []int
+	WeekDays string // []int{1,2,3,4,5,6,7}
 	Text     string
 }
 

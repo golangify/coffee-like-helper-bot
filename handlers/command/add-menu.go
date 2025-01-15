@@ -3,6 +3,7 @@ package commandhandler
 import (
 	"coffee-like-helper-bot/models"
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -16,7 +17,6 @@ func (h *CommandHandler) AddMenu(update *tgbotapi.Update, user *models.User, _ [
 func (h *CommandHandler) StepAddMenuName(update *tgbotapi.Update, user *models.User, _ []any) {
 	if update.Message == nil || update.Message.Text == "" || len([]rune(update.Message.Text)) > maxMenuNameLength {
 		panic("в сообщении отсутствует текст или он слишком длинный")
-		return
 	}
 
 	newMenu := models.Menu{

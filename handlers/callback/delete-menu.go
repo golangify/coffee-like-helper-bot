@@ -3,9 +3,10 @@ package callbackhandler
 import (
 	"coffee-like-helper-bot/models"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) deleteMenu(update *tgbotapi.Update, user *models.User, args []string) {
@@ -45,7 +46,6 @@ func (h *CallbackHandler) stepDeleteMenu(update *tgbotapi.Update, user *models.U
 
 	if update.Message == nil || update.Message.Text == "" {
 		panic("это не сообщение")
-		return
 	}
 
 	if update.Message.Text == "/cancel" {
