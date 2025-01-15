@@ -2,13 +2,14 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/config"
-	"coffee-like-helper-bot/handlers/step"
+	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/workers/mailer"
+	workermailer "coffee-like-helper-bot/workers/mailer"
 	"fmt"
+	"regexp"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"regexp"
 )
 
 type callback struct {
@@ -144,6 +145,11 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 		{
 			regexp:     regexp.MustCompile(`^remove_administrator (\d+)$`),
 			function:   h.removeAdministrator,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^page users_(all|barista|admin|) (\d+)$`),
+			function:   h.pageUsers,
 			isForStaff: true,
 		},
 	}

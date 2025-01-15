@@ -1,14 +1,16 @@
-package commandhandler
+package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
 	viewuser "coffee-like-helper-bot/view/user"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (h *CommandHandler) Users(update *tgbotapi.Update, user *models.User, args []string) {
+func (h *CallbackHandler) pageUsers(update *tgbotapi.Update, user *models.User, args []string) {
 	userCategory := args[1]
+	page, _ := strconv.Atoi(args[2])
 	var users []models.User
 	var err error
 	switch userCategory {
@@ -24,7 +26,6 @@ func (h *CommandHandler) Users(update *tgbotapi.Update, user *models.User, args 
 		panic(err)
 	}
 
-	msg := tgbotapi.NewMessage(update.FromChat().ID, "Пользователи категории "+userCategory)
-	msg.ReplyMarkup = viewuser.InlineKeyboardList(users, "users_"+userCategory, 0, 1)
+	msg := tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, *viewuser.InlineKeyboardList(users, "users_"+userCategory, page, 5))
 	h.bot.Send(msg)
 }
