@@ -20,6 +20,7 @@ type command struct {
 	activatorRegexps []*regexp.Regexp
 	isForStaff       bool
 	function         commandFunction
+	isHidden         bool
 }
 
 func (c *command) help() string {
@@ -76,23 +77,8 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 				regexp.MustCompile(`\/menu_$`),
 			},
 			function: h.Menu,
+			isHidden: true,
 		},
-		// {
-			// string:      "/products",
-			// description: "список всех позиций",
-			// argsRegexp:  regexp.MustCompile(`^\/products$`),
-			// function:    nil,
-		// },
-		// {
-			// string:      "/product_[id]",
-			// description: "получить напиок по id",
-			// argsRegexp:  regexp.MustCompile(`^\/product(?:_| )(\d+)$`),
-			// activatorRegexps: []*regexp.Regexp{
-				// regexp.MustCompile(`\/product`),
-				// regexp.MustCompile(`\/product_$`),
-			// },
-			// function: h.Product,
-		// },
 		{
 			string:      "/addmenu",
 			description: "добавить новое меню",
@@ -113,6 +99,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			argsRegexp:  regexp.MustCompile(`^\/debug$`),
 			function:    h.Debug,
 			isForStaff:  true,
+			isHidden:    true,
 		},
 		{
 			string:      "/panic [text]",
@@ -123,6 +110,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			},
 			function:   h.Panic,
 			isForStaff: true,
+			isHidden:   true,
 		},
 	}
 	return h

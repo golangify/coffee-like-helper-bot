@@ -7,19 +7,19 @@ import (
 )
 
 type Notification struct {
-	UserID uint
-	Type string // "all" || "barista" || "administrator"
+	UserID   uint
+	Type     string // "all" || "barista" || "administrator"
 	WeekDays string // []int
-	Text string
+	Text     string
 }
 
 type Notificator struct {
-	bot *tgbotapi.BotAPI
+	bot      *tgbotapi.BotAPI
 	database *gorm.DB
-	config *config.Config
+	config   *config.Config
 }
 
-func (w *Notificator)run() {
+func (w *Notificator) run() {
 	//
 }
 
@@ -29,9 +29,9 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 	}
 
 	w := &Notificator{
-		bot: bot,
+		bot:      bot,
 		database: database,
-		config: config,
+		config:   config,
 	}
 
 	go w.run()

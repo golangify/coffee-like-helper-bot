@@ -16,10 +16,13 @@ func NewMessageHandler(bot *tgbotapi.BotAPI, database *gorm.DB) *MessageHandler 
 		bot:      bot,
 		database: database,
 	}
-
 	return h
 }
 
 func (h *MessageHandler) Process(update *tgbotapi.Update, user *models.User) {
-	h.Search(update, user)
+	if update.Message.Text == "Меню" {
+		h.Menus(update, user)
+	} else {
+		h.Search(update, user)
+	}
 }
