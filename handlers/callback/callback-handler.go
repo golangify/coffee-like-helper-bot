@@ -148,6 +148,11 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 			isForStaff: true,
 		},
 		{
+			regexp:     regexp.MustCompile(`^user (\d+)$`),
+			function:   h.user,
+			isForStaff: true,
+		},
+		{
 			regexp:     regexp.MustCompile(`^page users_(all|barista|admin|) (\d+)$`),
 			function:   h.pageUsers,
 			isForStaff: true,
