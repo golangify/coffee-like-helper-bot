@@ -2,13 +2,14 @@ package commandhandler
 
 import (
 	"coffee-like-helper-bot/config"
-	"coffee-like-helper-bot/handlers/step"
+	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
 
 	"fmt"
+	"regexp"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"regexp"
 )
 
 type commandFunction func(update *tgbotapi.Update, user *models.User, args []string)
@@ -92,6 +93,16 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			argsRegexp:  regexp.MustCompile(`^\/addnotification$`),
 			function:    nil,
 			isForStaff:  true,
+		},
+		{
+			string:      "/users [ all, admin, barista ](по умолчанию all)",
+			description: "список пользователей",
+			argsRegexp:  regexp.MustCompile(`^\/users(?:|(?: |_)(all|admin|barista))$`),
+			activatorRegexps: []*regexp.Regexp{
+				regexp.MustCompile(`^\/users.+`),
+			},
+			function:   h.Users,
+			isForStaff: true,
 		},
 		{
 			string:      "/debug",
