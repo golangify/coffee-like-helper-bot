@@ -87,7 +87,7 @@ func InlineKeyboardList(users []models.User, callbackData string, page, limit in
 
 	for _, user := range users {
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
-			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(user.FirstName, fmt.Sprintf("user %d", user.ID))),
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(Text(&user), fmt.Sprintf("user %d", user.ID))),
 		)
 	}
 
