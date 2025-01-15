@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if err = database.AutoMigrate(&models.User{}, &models.Menu{}, &models.Product{}); err != nil {
+	if err = database.AutoMigrate(&models.User{}, &models.Menu{}, &models.Product{}, &models.Search{}); err != nil {
 		log.Fatalln(err)
 	}
 
