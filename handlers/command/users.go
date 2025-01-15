@@ -25,6 +25,6 @@ func (h *CommandHandler) Users(update *tgbotapi.Update, user *models.User, args 
 	}
 
 	msg := tgbotapi.NewMessage(update.FromChat().ID, "Пользователи категории "+userCategory)
-	msg.ReplyMarkup = viewuser.InlineKeyboardList(users, "users_"+userCategory, 0, 1)
+	msg.ReplyMarkup = viewuser.InlineKeyboardList(users, "users_"+userCategory, 0, 5)
 	h.bot.Send(msg)
 }
