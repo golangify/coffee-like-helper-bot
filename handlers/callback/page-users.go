@@ -10,9 +10,11 @@ import (
 
 func (h *CallbackHandler) pageUsers(update *tgbotapi.Update, user *models.User, args []string) {
 	userCategory := args[1]
-	page, _ := strconv.Atoi(args[2])
+	page, err := strconv.Atoi(args[2])
+	if err != nil {
+		panic(err)
+	}
 	var users []models.User
-	var err error
 	switch userCategory {
 	case "admin":
 		err = h.database.Find(&users, "is_administrator = ?", true).Error

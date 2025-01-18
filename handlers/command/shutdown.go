@@ -7,7 +7,6 @@ import (
 )
 
 func (h *CommandHandler) shutdown(update *tgbotapi.Update, user *models.User, _ []string) {
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Выключение..."))
 	checkPhrase := "выключить " + h.bot.Self.FirstName
 	h.stepHandler.AddStepHandler(user.ID, h.stepShutdown, []any{checkPhrase})
 	msg := tgbotapi.NewMessage(update.FromChat().ID, "Отправь(можно нажать на текст ниже для копирования)\n\n<code>"+checkPhrase+"</code>\n\nчтобы подтвердить выключение бота.\n\nотмена - /cancel")
@@ -19,7 +18,8 @@ func (h *CommandHandler) shutdown(update *tgbotapi.Update, user *models.User, _ 
 func (h *CommandHandler) stepShutdown(update *tgbotapi.Update, user *models.User, args []any) {
 	checkPhrase := args[0].(string)
 	if update.Message == nil || update.Message.Text == "" {
-		panic("сообщение не содержит текст")
+		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "сообщение не содержит текст."))
+		return
 	}
 	if checkPhrase != update.Message.Text {
 		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Неправильная подтверждающая фраза. Выключение отменено."))

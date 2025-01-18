@@ -2,11 +2,15 @@ package workermailer
 
 import (
 	"coffee-like-helper-bot/config"
+	"coffee-like-helper-bot/logger"
 	"coffee-like-helper-bot/models"
+	"time"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"time"
 )
+
+var log = logger.NewLoggerWithPrefix("mailer")
 
 type Mailer struct {
 	bot      *tgbotapi.BotAPI
@@ -30,7 +34,10 @@ func (w *Mailer) mail(users []models.User, msg *tgbotapi.MessageConfig) error {
 	for _, user := range users {
 		<-t.C
 		msg.BaseChat.ChatID = user.TelegramID
-		w.bot.Send(msg)
+		_, err := w.bot.Send(msg)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	return nil
 }

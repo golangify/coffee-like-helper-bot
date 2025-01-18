@@ -9,6 +9,7 @@ import (
 	"coffee-like-helper-bot/models"
 	viewuser "coffee-like-helper-bot/view/user"
 	workermailer "coffee-like-helper-bot/workers/mailer"
+	workernotificator "coffee-like-helper-bot/workers/notificator"
 
 	"fmt"
 
@@ -33,13 +34,17 @@ type UpdateHandler struct {
 func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHandler {
 	stepHandler := stephandler.New(bot)
 	mailer := workermailer.New(bot, database, cfg)
+	notificator, err := workernotificator.NewNotificator(bot, database, cfg, mailer)
+	if err != nil {
+		panic(err)
+	}
 
 	h := &UpdateHandler{
 		config:   cfg,
 		bot:      bot,
 		database: database,
 
-		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, stepHandler),
+		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, stepHandler, notificator),
 		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, stepHandler, mailer),
 		messageHandler:  messagehandler.NewMessageHandler(bot, database),
 

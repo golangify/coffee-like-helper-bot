@@ -2,8 +2,10 @@ package commandhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/bot"
+	viewbot "coffee-like-helper-bot/view/bot"
 	"fmt"
+	"html"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -13,7 +15,7 @@ func (h *CommandHandler) Help(update *tgbotapi.Update, user *models.User, _ []st
 		if command.isForStaff && !user.IsAdministrator || command.isHidden {
 			continue
 		}
-		msg.Text += fmt.Sprint(command.help(), "\n\n")
+		msg.Text += fmt.Sprint(html.EscapeString(command.help()), "\n\n")
 	}
 	msg.ParseMode = tgbotapi.ModeHTML
 	msg.ReplyMarkup = viewbot.StartKeyboard(user)

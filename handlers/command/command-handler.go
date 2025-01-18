@@ -4,6 +4,7 @@ import (
 	"coffee-like-helper-bot/config"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	workernotificator "coffee-like-helper-bot/workers/notificator"
 
 	"fmt"
 	"regexp"
@@ -39,15 +40,19 @@ type CommandHandler struct {
 
 	stepHandler *stephandler.StepHandler
 
+	notificator *workernotificator.Notificator
+
 	commands []*command
 }
 
-func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler) *CommandHandler {
+func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, notificator *workernotificator.Notificator) *CommandHandler {
 	h := &CommandHandler{
 		config:      cfg,
 		bot:         bot,
 		database:    database,
 		stepHandler: stepHandler,
+
+		notificator: notificator,
 	}
 
 	h.commands = []*command{
@@ -88,11 +93,14 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			isForStaff:  true,
 		},
 		{
-			string:      "/addnotification",
+			string:      "/addnotification <название> [all | barista | admin] [<дни недели>] <час>:<минута> <содержимое>",
 			description: "добавить уведомление",
-			argsRegexp:  regexp.MustCompile(`^\/addnotification$`),
-			function:    nil,
-			isForStaff:  true,
+			argsRegexp:  regexp.MustCompile(`^\/addnotification (.+) (all|barista|admin) (\[(?:[1-7](?:(?:,|, )[1-7]){0,6}){1,7}\]) ([0-2][0-9]:[0-5][0-9]) (.+)`),
+			activatorRegexps: []*regexp.Regexp{
+				regexp.MustCompile(`\/addnotification`),
+			},
+			function:   h.addNotification,
+			isForStaff: true,
 		},
 		{
 			string:      "/users [ all, admin, barista ](по умолчанию all)",
