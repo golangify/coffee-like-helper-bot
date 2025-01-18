@@ -53,6 +53,7 @@ func (h *CallbackHandler) stepDeleteProduct(update *tgbotapi.Update, user *model
 
 	if update.Message.Text != checkPhrase {
 		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Неправильная подтверждающая фраза. Удаление отменено."))
+		return
 	}
 
 	err = h.database.Delete(&product).Error

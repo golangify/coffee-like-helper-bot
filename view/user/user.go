@@ -11,14 +11,14 @@ func Message(chatID int64, user *models.User) tgbotapi.MessageConfig {
 
 	msgText := fmt.Sprint(
 		"ID: ", user.ID,
-		"\n CreatedAt: ", user.CreatedAt,
-		"\n UpdatedAt: ", user.UpdatedAt,
-		"\n TelegramID: ", user.TelegramID,
-		"\n IsBarista: ", user.IsBarista,
-		"\n IsAdministrator: ", user.IsAdministrator,
-		"\n FirstName: ", user.FirstName,
-		"\n LastName: ", user.LastName,
-		"\n UserName: ", user.UserName,
+		"\n\n Первое сообщение: ", user.CreatedAt,
+		"\n\n Обновление: ", user.UpdatedAt,
+		"\n\n ID telegram: ", user.TelegramID,
+		"\n\n Бариста: ", user.IsBarista,
+		"\n\n Администратор: ", user.IsAdministrator,
+		"\n\n Имя: ", user.FirstName,
+		"\n\n Фамилия: ", user.LastName,
+		"\n\n Имя пользователя: @", user.UserName,
 	)
 
 	msg := tgbotapi.NewMessage(chatID, msgText)
