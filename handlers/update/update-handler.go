@@ -7,10 +7,11 @@ import (
 	messagehandler "coffee-like-helper-bot/handlers/message"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/user"
-	"coffee-like-helper-bot/workers/mailer"
+	viewuser "coffee-like-helper-bot/view/user"
+	workermailer "coffee-like-helper-bot/workers/mailer"
 
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
 )
@@ -66,7 +67,7 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 			if err = h.database.Create(&user).Error; err != nil {
 				panic(err)
 			}
-			err = h.updateNames(&user, sentFrom)
+			err = h.updateUser(&user, sentFrom)
 			if err != nil {
 				panic(err)
 			}
@@ -75,7 +76,7 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 		}
 		panic(err)
 	}
-	err = h.updateNames(&user, sentFrom)
+	err = h.updateUser(&user, sentFrom)
 	if err != nil {
 		panic(err)
 	}
@@ -114,7 +115,7 @@ func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotap
 	h.bot.Send(tgbotapi.NewMessage(sentFrom.ID, "Неподдерживаемое действие."))
 }
 
-func (h *UpdateHandler) updateNames(coffeeUser *models.User, telegramUser *tgbotapi.User) error {
+func (h *UpdateHandler) updateUser(coffeeUser *models.User, telegramUser *tgbotapi.User) error {
 	var updated bool
 
 	if coffeeUser.FirstName != telegramUser.FirstName {

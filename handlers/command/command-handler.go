@@ -123,6 +123,13 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			isForStaff: true,
 			isHidden:   true,
 		},
+		{
+			string:      "/shutdown",
+			description: "выключить бота",
+			argsRegexp:  regexp.MustCompile(`^\/shutdown$`),
+			function:    h.shutdown,
+			isForStaff:  true,
+		},
 	}
 	return h
 }
