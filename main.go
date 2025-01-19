@@ -46,7 +46,7 @@ func main() {
 				}
 				if err := recover(); err != nil {
 					log.Println(err)
-					bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Произошла ошибка: ", err, "\n\nЕсли это что-то серьезное пиши - @golangify")))
+					bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Произошла ошибка: ", err, "\n\nЕсли ошибка критическая - /report")))
 				}
 			}()
 			updHandler.Process(&update)

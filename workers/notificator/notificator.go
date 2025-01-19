@@ -8,7 +8,6 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -20,11 +19,9 @@ type Notificator struct {
 	config   *config.Config
 
 	mailer *workermailer.Mailer
-
-	notifications []*Notification
 }
 
-func (w *Notificator) notificationProcess(notification *Notification) {
+func (w *Notificator) notificationProcess(notification Notification) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -43,7 +40,10 @@ func (w *Notificator) notificationProcess(notification *Notification) {
 		fmt.Println(fmt.Sprint("Уведомление \"", notification.Name, "\" будет разослано через ", sleepTime))
 		time.Sleep(sleepTime)
 
-		if !w.NotificationExist(notification.ID) {
+		if notification, err := w.NotificationByID(notification.ID); err != nil || notification != nil {
+			if err != nil {
+				panic(err)
+			}
 			break
 		}
 
@@ -61,7 +61,7 @@ func (w *Notificator) notificationProcess(notification *Notification) {
 	}
 }
 
-func (w *Notificator) run() {
+func (w *Notificator) run(notifications []Notification) {
 	defer func() {
 		if w.bot.Debug {
 			return
@@ -75,7 +75,7 @@ func (w *Notificator) run() {
 		w.mailer.Administrator(&msg)
 	}()
 
-	for _, ntfctn := range w.notifications {
+	for _, ntfctn := range notifications {
 		go w.notificationProcess(ntfctn)
 	}
 }
@@ -92,14 +92,12 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 		mailer:   mailer,
 	}
 
-	var notifications []*Notification
+	var notifications []Notification
 	if err := w.database.Find(&notifications).Error; err != nil {
 		return nil, err
 	}
 
-	w.notifications = notifications
-
-	w.run()
+	w.run(notifications)
 	log.Println("запущен")
 
 	return w, nil
@@ -115,27 +113,14 @@ func (w *Notificator) AddNotification(notification Notification) error {
 		return err
 	}
 
-	w.notifications = append(w.notifications, &notification)
-
-	go w.notificationProcess(&notification)
+	go w.notificationProcess(notification)
 
 	return nil
 }
 
 func (w *Notificator) DeleteNotification(id uint) error {
-	var notificationToDelete *Notification
-	w.notifications = slices.DeleteFunc(w.notifications, func(n *Notification) bool {
-		if n.ID == id {
-			notificationToDelete = n
-			return true
-		}
-		return false
-	})
-	if notificationToDelete == nil {
-		return fmt.Errorf("notification with id %d not found", id)
-	}
 
-	err := w.database.Delete(notificationToDelete).Error
+	err := w.database.Model(&Notification{}).Delete(id).Error
 	if err != nil {
 		return err
 	}
@@ -143,12 +128,15 @@ func (w *Notificator) DeleteNotification(id uint) error {
 	return nil
 }
 
-func (n *Notificator) NotificationExist(id uint) bool {
-	for _, n := range n.notifications {
-		if n.ID == id {
-			return true
+func (n *Notificator) NotificationByID(id uint) (*Notification, error) {
+	var notification Notification
+	err := n.database.First(&notification, id).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
 		}
+		return nil, err
 	}
 
-	return false
+	return &notification, nil
 }

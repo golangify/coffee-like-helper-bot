@@ -75,6 +75,12 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			function:    h.Menus,
 		},
 		{
+			string:      "/report",
+			description: "сообщить об ошибке",
+			argsRegexp:  regexp.MustCompile(`^\/report$`),
+			function:    h.report,
+		},
+		{
 			string:      "/menu_[id]",
 			description: "получить меню по id",
 			argsRegexp:  regexp.MustCompile(`^\/menu(?:_| )(\d+)$`),
