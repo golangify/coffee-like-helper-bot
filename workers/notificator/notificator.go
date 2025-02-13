@@ -26,7 +26,7 @@ func (w *Notificator) notificationProcess(notification Notification) {
 		err := recover()
 		if err != nil {
 			log.Println(err)
-			msg := tgbotapi.NewMessage(0, fmt.Sprint("worker/notificator: ошибка в процессе уведомления \"", notification.Name, "\"", err))
+			msg := tgbotapi.NewMessage(0, fmt.Sprint("worker/notificator: ошибка в процессе уведомления \"", notification.Name, "\": ", err, "\n/notification_", notification.ID))
 			w.mailer.Administrator(&msg)
 		}
 	}()
@@ -34,7 +34,9 @@ func (w *Notificator) notificationProcess(notification Notification) {
 	for {
 		sleepTime, err := notification.TimeUntilNextNotification()
 		if err != nil {
-			panic(err)
+			msg := tgbotapi.NewMessage(0, fmt.Sprint("Ошибка подсчёта времени для уведомления \"", notification.Name, "\".\n\nВозможно стоит проверить настройки - /notification_", notification.ID))
+			w.mailer.Administrator(&msg)
+			return
 		}
 
 		fmt.Println(fmt.Sprint("Уведомление \"", notification.Name, "\" будет разослано через ", sleepTime))
@@ -103,7 +105,7 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 	return w, nil
 }
 
-func (w *Notificator) AddNotification(notification Notification) error {
+func (w *Notificator) AddNotification(notification *Notification) error {
 	_, err := notification.TimeUntilNextNotification()
 	if err != nil {
 		return err
@@ -112,8 +114,6 @@ func (w *Notificator) AddNotification(notification Notification) error {
 	if err != nil {
 		return err
 	}
-
-	go w.notificationProcess(notification)
 
 	return nil
 }

@@ -157,6 +157,26 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 			function:   h.pageUsers,
 			isForStaff: true,
 		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification (\d+)$`),
+			function:   h.editNotification,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification_name (\d+)$`),
+			function:   h.editNotificationName,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification_user_category (\d+)$`),
+			function:   h.editNotificationUserCategory,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^set_notification_user_category (\d+) (all|admin|barista)$`),
+			function:   h.setNotificationUserCategory,
+			isForStaff: true,
+		},
 	}
 
 	return h

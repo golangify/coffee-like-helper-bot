@@ -81,11 +81,11 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			function:    h.report,
 		},
 		{
-			string:      "/menu_[id]",
+			string:      "/menu [id]",
 			description: "получить меню по id",
 			argsRegexp:  regexp.MustCompile(`^\/menu(?:_| )(\d+)$`),
 			activatorRegexps: []*regexp.Regexp{
-				regexp.MustCompile(`\/menu`),
+				regexp.MustCompile(`\/menu$`),
 				regexp.MustCompile(`\/menu_$`),
 			},
 			function: h.Menu,
@@ -99,13 +99,31 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			isForStaff:  true,
 		},
 		{
-			string:      "/addnotification <название> [all | barista | admin] [<дни недели>] <час>:<минута> <содержимое>",
-			description: "добавить уведомление",
-			argsRegexp:  regexp.MustCompile(`^\/addnotification (.+) (all|barista|admin) (\[(?:[1-7](?:(?:,|, )[1-7]){0,6}){1,7}\]) ([0-2][0-9]:[0-5][0-9]) (.+)`),
+			string:      "/faddnotification <название> [all | barista | admin] [<дни недели>] <час>:<минута> <содержимое>",
+			description: "быстро добавить уведомление",
+			argsRegexp:  regexp.MustCompile(`^\/faddnotification (.+) (all|barista|admin) (\[(?:[1-7](?:(?:,|, )[1-7]){0,6}){1,7}\]) ([0-2][0-9]:[0-5][0-9]) (.+)`),
 			activatorRegexps: []*regexp.Regexp{
-				regexp.MustCompile(`\/addnotification`),
+				regexp.MustCompile(`\/faddnotification`),
 			},
-			function:   h.addNotification,
+			function:   nil,
+			isForStaff: true,
+			isHidden:   true,
+		},
+		{
+			string:      "/addnotification",
+			description: "добавить уведомление",
+			argsRegexp:  regexp.MustCompile(`^\/addnotification$`),
+			function:    h.addNotification,
+			isForStaff:  true,
+		},
+		{
+			string:      "/notification [id]",
+			description: "уведомление по id",
+			argsRegexp:  regexp.MustCompile(`^\/notification(?:|(?: |_))(\d+)$`),
+			activatorRegexps: []*regexp.Regexp{
+				regexp.MustCompile(`^\/notification`),
+			},
+			function:   h.notification,
 			isForStaff: true,
 		},
 		{

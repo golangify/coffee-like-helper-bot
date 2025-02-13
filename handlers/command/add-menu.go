@@ -11,7 +11,7 @@ const maxMenuNameLength = 250
 
 func (h *CommandHandler) AddMenu(update *tgbotapi.Update, user *models.User, _ []string) {
 	h.stepHandler.AddStepHandler(user.ID, h.StepAddMenuName, nil)
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название меню:"))
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название меню:\n\n/cancel - отмена"))
 }
 
 func (h *CommandHandler) StepAddMenuName(update *tgbotapi.Update, user *models.User, _ []any) {

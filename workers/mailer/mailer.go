@@ -54,7 +54,7 @@ func (w *Mailer) AllUsers(msg *tgbotapi.MessageConfig) error {
 
 func (w *Mailer) Barista(msg *tgbotapi.MessageConfig) error {
 	var baristas []models.User
-	err := w.database.Find(&baristas, "is_barista = ? OR is_administrator = ?", true, true).Error
+	err := w.database.Find(&baristas, "is_barista = ?", true).Error
 	if err != nil {
 		return err
 	}

@@ -35,6 +35,7 @@ type Notification struct {
 	WeekDays      []byte // json("[1, 4, 6]]")
 	HourAndMinute string // "16:32"
 	Text          string
+	NowRunning    bool
 }
 
 func (n *Notification) weekDays() ([]int, error) {
