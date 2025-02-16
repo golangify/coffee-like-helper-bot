@@ -30,7 +30,6 @@ func Text(notification *workernotificator.Notification) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	slices.Sort(weekdays)
 	for _, weekday := range weekdays {
 		weekdaysStr += workernotificator.WeekdaysRu[weekday] + ", "
 	}
@@ -60,9 +59,10 @@ func InlineKeyboardEditList(notification *workernotificator.Notification) *tgbot
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("👪изменить категрию пользователей", fmt.Sprint("edit_notification_user_category ", notification.ID))),
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🗓️изменить дни недели", fmt.Sprint("edit_notification_weekdays ", notification.ID))),
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("⏲️изменить время", fmt.Sprint("edit_notification_time ", notification.ID))),
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("📝изменить описание", fmt.Sprint("edit_notification_description ", notification.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("📝изменить текст", fmt.Sprint("edit_notification_text ", notification.ID))),
 		// tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать беззвуч", fmt.Sprint("edit_notification_description ", notification.ID))),
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🗑удалить", fmt.Sprint("delete_notification ", notification.ID))),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("🏠готово", fmt.Sprint("notification_home ", notification.ID))),
 	)
 	return &keyboard
 }
@@ -79,4 +79,27 @@ func InlineKeyboardSetUserCategory(notification *workernotificator.Notification)
 		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("barista (только бариста)", fmt.Sprint("set_notification_user_category ", notification.ID, " barista"))))
 	}
 	return &keyboard
+}
+
+func InlineKeyboardNotificationWeekdays(notification *workernotificator.Notification) (*tgbotapi.InlineKeyboardMarkup, error) {
+	keyboard := tgbotapi.NewInlineKeyboardMarkup()
+	var weekdays []int
+	if err := json.Unmarshal(notification.WeekDays, &weekdays); err != nil {
+		return nil, err
+	}
+	for i := 1; i < 8; i++ {
+		if slices.Contains(weekdays, i) {
+			keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
+				tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("✅"+workernotificator.WeekdaysRu[i], fmt.Sprint("remove_weekday_from_notification ", notification.ID, " ", i))),
+			)
+		} else {
+			keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
+				tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("➕"+workernotificator.WeekdaysRu[i], fmt.Sprint("add_weekday_to_notification ", notification.ID, " ", i))),
+			)
+		}
+	}
+	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("🏠готово", fmt.Sprint("notification_home ", notification.ID)),
+	))
+	return &keyboard, nil
 }

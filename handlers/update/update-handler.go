@@ -45,7 +45,7 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHan
 		database: database,
 
 		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, stepHandler, notificator),
-		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, stepHandler, mailer),
+		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, stepHandler, mailer, notificator),
 		messageHandler:  messagehandler.NewMessageHandler(bot, database),
 
 		stepHandler: stepHandler,

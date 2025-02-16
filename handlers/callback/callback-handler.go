@@ -5,7 +5,9 @@ import (
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
 	workermailer "coffee-like-helper-bot/workers/mailer"
+	workernotificator "coffee-like-helper-bot/workers/notificator"
 	"fmt"
+	"log"
 	"regexp"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -28,10 +30,11 @@ type CallbackHandler struct {
 
 	callbacks []*callback
 
-	mailer *workermailer.Mailer
+	mailer      *workermailer.Mailer
+	notificator *workernotificator.Notificator
 }
 
-func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer) *CallbackHandler {
+func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer, notificator *workernotificator.Notificator) *CallbackHandler {
 	h := &CallbackHandler{
 		config:   cfg,
 		bot:      bot,
@@ -39,7 +42,8 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 
 		stepHandler: stepHandler,
 
-		mailer: mailer,
+		mailer:      mailer,
+		notificator: notificator,
 	}
 
 	h.callbacks = []*callback{
@@ -158,6 +162,11 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 			isForStaff: true,
 		},
 		{
+			regexp:     regexp.MustCompile(`^notification_home (\d+)`),
+			function:   h.notificationHome,
+			isForStaff: true,
+		},
+		{
 			regexp:     regexp.MustCompile(`^edit_notification (\d+)$`),
 			function:   h.editNotification,
 			isForStaff: true,
@@ -177,12 +186,40 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 			function:   h.setNotificationUserCategory,
 			isForStaff: true,
 		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification_weekdays (\d+)`),
+			function:   h.editNotificationWeekdays,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^add_weekday_to_notification (\d+) (\d+)`),
+			function:   h.addWeekdayToNotification,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^remove_weekday_from_notification (\d+) (\d+)`),
+			function:   h.removeWeekdayFromNotification,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification_time (\d+)`),
+			function:   h.editNotificationTime,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^edit_notification_text (\d+)`),
+			function:   h.editNotificationText,
+			isForStaff: true,
+		},
 	}
 
 	return h
 }
 
 func (h *CallbackHandler) Process(update *tgbotapi.Update, user *models.User) {
+	if h.bot.Debug {
+		log.Println(update.CallbackQuery.Data)
+	}
 	for _, callback := range h.callbacks {
 		if callback.isForStaff && !user.IsAdministrator {
 			continue
