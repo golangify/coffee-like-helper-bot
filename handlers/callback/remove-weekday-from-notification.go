@@ -44,6 +44,8 @@ func (h *CallbackHandler) removeWeekdayFromNotification(update *tgbotapi.Update,
 		panic(err)
 	}
 
+	go h.notificator.NotificationProcess(&notification, false)
+
 	msg := tgbotapi.NewEditMessageTextAndMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, "", tgbotapi.NewInlineKeyboardMarkup())
 	msg.Text, err = viewnotification.Text(&notification)
 	if err != nil {

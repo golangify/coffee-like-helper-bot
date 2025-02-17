@@ -46,6 +46,8 @@ func (h *CallbackHandler) stepEditNotificationTime(update *tgbotapi.Update, user
 		panic(err)
 	}
 
+	go h.notificator.NotificationProcess(notification, false)
+
 	msgText, err := viewnotification.Text(notification)
 	if err != nil {
 		panic(err)

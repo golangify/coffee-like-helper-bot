@@ -45,6 +45,8 @@ func (h *CallbackHandler) addWeekdayToNotification(update *tgbotapi.Update, _ *m
 		panic(err)
 	}
 
+	go h.notificator.NotificationProcess(&notification, false)
+
 	msg := tgbotapi.NewEditMessageTextAndMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, "", tgbotapi.NewInlineKeyboardMarkup())
 	msg.Text, err = viewnotification.Text(&notification)
 	if err != nil {

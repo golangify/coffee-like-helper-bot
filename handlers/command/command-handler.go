@@ -163,6 +163,13 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			isHidden:   true,
 		},
 		{
+			string:      "/info",
+			description: "тех. информация",
+			argsRegexp:  regexp.MustCompile(`^\/info$`),
+			function:    h.info,
+			isForStaff:  true,
+		},
+		{
 			string:      "/shutdown",
 			description: "выключить бота",
 			argsRegexp:  regexp.MustCompile(`^\/shutdown$`),

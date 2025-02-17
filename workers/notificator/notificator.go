@@ -61,9 +61,11 @@ func (w *Notificator) CancelNotification(id uint) {
 		delete(w.activeNotificationsCancel, id)
 	}
 	w.mu.Unlock()
+	log.Println("notification", id, "cancelled")
 }
 
-func (w *Notificator) NotificationProcess(notification *Notification) {
+func (w *Notificator) NotificationProcess(notification *Notification, withWarning bool) {
+	w.CancelNotification(notification.ID)
 	ctx, cancel := context.WithCancel(w.ctx)
 	w.mu.Lock()
 	w.activeNotificationsCancel[notification.ID] = cancel
@@ -81,6 +83,9 @@ func (w *Notificator) NotificationProcess(notification *Notification) {
 		for {
 			sleepTime, err := notification.TimeUntilNextNotification()
 			if err != nil {
+				if !withWarning {
+					return
+				}
 				msg := tgbotapi.NewMessage(0, fmt.Sprint("Ошибка подсчёта времени для уведомления: \"", notification.Name, "\": ", err.Error(), ".\n\nВозможно стоит проверить настройки - /notification_", notification.ID))
 				w.mailer.Administrator(&msg)
 				return
@@ -92,12 +97,7 @@ func (w *Notificator) NotificationProcess(notification *Notification) {
 			if notification, err = w.NotificationByID(notification.ID); err != nil || notification != nil {
 				if err != nil {
 					if err == gorm.ErrRecordNotFound {
-						w.mu.Lock()
-						_, ok := w.activeNotificationsCancel[notification.ID]
-						if ok {
-							delete(w.activeNotificationsCancel, notification.ID)
-						}
-						w.mu.Unlock()
+						w.CancelNotification(notification.ID)
 						return
 					}
 					panic(err)
@@ -136,7 +136,7 @@ func (w *Notificator) run(notifications []Notification) {
 
 	for _, ntfctn := range notifications {
 		func(n Notification) {
-			go w.NotificationProcess(&n)
+			go w.NotificationProcess(&n, true)
 		}(ntfctn)
 	}
 }
