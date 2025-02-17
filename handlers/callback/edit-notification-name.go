@@ -15,7 +15,7 @@ import (
 func (h *CallbackHandler) editNotificationName(update *tgbotapi.Update, user *models.User, args []string) {
 	notificationID, _ := strconv.ParseUint(args[1], 10, 32)
 	var notification workernotificator.Notification
-	if err := h.database.First(&notification).Error; err != nil {
+	if err := h.database.First(&notification, notificationID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Уведомление с id ", notificationID, " не найдено.")))
 			return
@@ -26,7 +26,7 @@ func (h *CallbackHandler) editNotificationName(update *tgbotapi.Update, user *mo
 	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое название для уведомления:\n\n/cancel - отмена"))
 }
 
-// args: tgbotapi.Update, *workernotificator.Notification
+// args: *tgbotapi.Update, *workernotificator.Notification
 func (h *CallbackHandler) stepEditNotificationName(update *tgbotapi.Update, user *models.User, args []any) {
 	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 250 {
 		panic("в сообщении отсутсвтует текст названия уведомления, или он слишком длинный")

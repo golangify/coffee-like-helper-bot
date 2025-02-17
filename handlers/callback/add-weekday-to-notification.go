@@ -19,7 +19,7 @@ func (h *CallbackHandler) addWeekdayToNotification(update *tgbotapi.Update, _ *m
 	notificationID, _ := strconv.ParseUint(args[1], 10, 32)
 	weekday, _ := strconv.Atoi(args[2])
 	var notification workernotificator.Notification
-	if err := h.database.First(&notification).Error; err != nil {
+	if err := h.database.First(&notification, notificationID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Уведомление с id ", notificationID, " не найдено.")))
 			return

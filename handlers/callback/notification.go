@@ -12,7 +12,7 @@ import (
 )
 
 // args: _, workernotificator.Notification.ID
-func (h *CallbackHandler) editNotificationWeekdays(update *tgbotapi.Update, user *models.User, args []string) {
+func (h *CallbackHandler) notification(update *tgbotapi.Update, user *models.User, args []string) {
 	notificationID, _ := strconv.ParseUint(args[1], 10, 32)
 	var notification workernotificator.Notification
 	if err := h.database.First(&notification, notificationID).Error; err != nil {
@@ -22,9 +22,10 @@ func (h *CallbackHandler) editNotificationWeekdays(update *tgbotapi.Update, user
 		}
 		panic(err)
 	}
-	keyboard, err := viewnotification.InlineKeyboardNotificationWeekdays(&notification)
+
+	msg, err := viewnotification.Message(update.FromChat().ID, user, &notification)
 	if err != nil {
 		panic(err)
 	}
-	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID, *keyboard))
+	h.bot.Send(msg)
 }

@@ -91,6 +91,9 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 }
 
 func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotapi.User, user *models.User) {
+	if user.IsBanned {
+		return
+	}
 	if !user.IsBarista && !user.IsAdministrator {
 		msg := tgbotapi.NewMessage(0, fmt.Sprint(viewuser.Text(user), " запрашивает доступ к боту"))
 		msg.ReplyMarkup = viewuser.InlineKeyboardEdit(user)

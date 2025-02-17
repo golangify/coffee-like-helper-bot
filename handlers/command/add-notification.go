@@ -18,11 +18,11 @@ func (h *CommandHandler) stepAddNotificationName(update *tgbotapi.Update, user *
 		panic("в сообщении отсутствует текст или он слишком длинный")
 	}
 	notification := workernotificator.Notification{
-		Name: update.Message.Text,
+		Name:     update.Message.Text,
+		WeekDays: []byte("[]"),
 	}
 	err := h.notificator.AddNotification(&notification)
 	if err != nil {
-		panic(err)
 	}
 	msg, err := viewnotification.Message(update.FromChat().ID, user, &notification)
 	if err != nil {

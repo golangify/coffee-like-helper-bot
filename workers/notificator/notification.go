@@ -2,6 +2,8 @@ package workernotificator
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -56,10 +58,13 @@ func (n *Notification) TimeUntilNextNotification() (time.Duration, error) {
 	if err != nil {
 		return 0, err
 	}
+	if len(weekDays) == 0 {
+		return 0, errors.New("не указаны дни недели")
+	}
 
 	notificationTime, err := time.Parse("15:04", n.HourAndMinute)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf(`неправильный формат времени: "%s"`, n.HourAndMinute)
 	}
 	notificationMinutes := notificationTime.Hour()*60 + notificationTime.Minute()
 

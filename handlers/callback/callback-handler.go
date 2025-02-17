@@ -152,6 +152,16 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 			isForStaff: true,
 		},
 		{
+			regexp:     regexp.MustCompile(`^ban_user (\d+)$`),
+			function:   h.banUser,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^unban_user (\d+)$`),
+			function:   h.unbanUser,
+			isForStaff: true,
+		},
+		{
 			regexp:     regexp.MustCompile(`^user (\d+)$`),
 			function:   h.user,
 			isForStaff: true,
@@ -159,6 +169,11 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 		{
 			regexp:     regexp.MustCompile(`^page users_(all|barista|admin|) (\d+)$`),
 			function:   h.pageUsers,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^notification (\d+)`),
+			function:   h.notification,
 			isForStaff: true,
 		},
 		{
@@ -209,6 +224,11 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 		{
 			regexp:     regexp.MustCompile(`^edit_notification_text (\d+)`),
 			function:   h.editNotificationText,
+			isForStaff: true,
+		},
+		{
+			regexp:     regexp.MustCompile(`^delete_notification (\d+)`),
+			function:   h.deleteNotification,
 			isForStaff: true,
 		},
 	}

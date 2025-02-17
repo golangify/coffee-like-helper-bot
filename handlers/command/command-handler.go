@@ -117,6 +117,13 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			isForStaff:  true,
 		},
 		{
+			string:      "/notifications",
+			description: "список уведомлений",
+			argsRegexp:  regexp.MustCompile(`^\/notifications$`),
+			function:    h.notifications,
+			isForStaff:  true,
+		},
+		{
 			string:      "/notification [id]",
 			description: "уведомление по id",
 			argsRegexp:  regexp.MustCompile(`^\/notification(?:|(?: |_))(\d+)$`),

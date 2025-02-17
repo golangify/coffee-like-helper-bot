@@ -7,6 +7,7 @@ type User struct {
 	TelegramID      int64 `gorm:"unique;notnull"`
 	IsBarista       bool
 	IsAdministrator bool
+	IsBanned        bool
 	FirstName       string
 	LastName        string
 	UserName        string

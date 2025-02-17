@@ -103,3 +103,45 @@ func InlineKeyboardNotificationWeekdays(notification *workernotificator.Notifica
 	))
 	return &keyboard, nil
 }
+
+func PreviewText(notification *workernotificator.Notification) string {
+	return notification.Name
+}
+
+func InlineKeyboardList(notifications []workernotificator.Notification, callbackData string, page, limit int) *tgbotapi.InlineKeyboardMarkup {
+	keyboard := tgbotapi.NewInlineKeyboardMarkup()
+
+	if len(notifications) == 0 {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("пусто", "nothing")))
+		return &keyboard
+	}
+
+	totalPages := (len(notifications) + limit - 1) / limit
+	startIndex := page * limit
+	endIndex := (page + 1) * limit
+	if endIndex > len(notifications) {
+		endIndex = len(notifications)
+	}
+
+	notifications = notifications[startIndex:endIndex]
+
+	for _, notification := range notifications {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(PreviewText(&notification), fmt.Sprintf("notification %d", notification.ID))),
+		)
+	}
+
+	if totalPages > 1 {
+		navigationRow := tgbotapi.NewInlineKeyboardRow()
+		if page > 0 {
+			navigationRow = append(navigationRow, tgbotapi.NewInlineKeyboardButtonData("<<", fmt.Sprintf("page %s %d", callbackData, page-1)))
+		}
+		navigationRow = append(navigationRow, tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("(%d / %d)", page+1, totalPages), "nothing"))
+		if page < totalPages-1 {
+			navigationRow = append(navigationRow, tgbotapi.NewInlineKeyboardButtonData(">>", fmt.Sprintf("page %s %d", callbackData, page+1)))
+		}
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, navigationRow)
+	}
+
+	return &keyboard
+}

@@ -64,6 +64,16 @@ func InlineKeyboardEditList(user *models.User) *tgbotapi.InlineKeyboardMarkup {
 			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("сделать администратором", fmt.Sprint("make_administrator ", user.ID))),
 		)
 	}
+	if user.IsBanned {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("разбанить", fmt.Sprint("unban_user ", user.ID))),
+		)
+
+	} else {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
+			tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("забанить", fmt.Sprint("ban_user ", user.ID))),
+		)
+	}
 
 	return &keyboard
 }
