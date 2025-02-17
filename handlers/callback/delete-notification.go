@@ -22,7 +22,7 @@ func (h *CallbackHandler) deleteNotification(update *tgbotapi.Update, user *mode
 		panic(err)
 	}
 
-	if err := h.database.Delete(&notification).Error; err != nil {
+	if err := h.notificator.DeleteNotification(notification.ID); err != nil {
 		panic(err)
 	}
 	h.bot.Send(tgbotapi.NewDeleteMessage(update.FromChat().ID, update.CallbackQuery.Message.MessageID))

@@ -83,6 +83,7 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 		for {
 			sleepTime, err := notification.TimeUntilNextNotification()
 			if err != nil {
+				log.Println(err)
 				if !withWarning {
 					return
 				}
@@ -152,7 +153,7 @@ func (w *Notificator) AddNotification(notification *Notification) error {
 
 func (w *Notificator) DeleteNotification(id uint) error {
 
-	err := w.database.Model(&Notification{}).Delete(id).Error
+	err := w.database.Where("id = ?", id).Delete(&Notification{}).Error
 	if err != nil {
 		return err
 	}
