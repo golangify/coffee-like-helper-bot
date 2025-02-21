@@ -15,6 +15,10 @@ func (h *CommandHandler) report(update *tgbotapi.Update, user *models.User, _ []
 }
 
 func (h *CommandHandler) StepReport(update *tgbotapi.Update, user *models.User, _ []any) {
+	if update.Message == nil {
+		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Ожидалось сообщение. Действие отменено."))
+		return
+	}
 	var admins []models.User
 	err := h.database.Find(&admins, "is_administrator = ?", true).Error
 	if err != nil {
