@@ -95,9 +95,10 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 			fmt.Println(fmt.Sprint("Уведомление \"", notification.Name, "\" будет разослано через ", sleepTime))
 			time.Sleep(sleepTime)
 
-			if notification, err = w.NotificationByID(notification.ID); err != nil || notification != nil {
+			if notification, err = w.NotificationByID(notification.ID); err != nil || notification == nil {
 				if err != nil {
 					if err == gorm.ErrRecordNotFound {
+						log.Println(err)
 						w.CancelNotification(notification.ID)
 						return
 					}
