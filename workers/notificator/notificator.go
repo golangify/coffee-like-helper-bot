@@ -19,12 +19,10 @@ type Notificator struct {
 	bot      *tgbotapi.BotAPI
 	database *gorm.DB
 	config   *config.Config
+	mailer   *workermailer.Mailer
+	ctx      context.Context
 
-	mailer *workermailer.Mailer
-
-	ctx context.Context
-
-	activeNotificationsCancel map[uint]context.CancelFunc // для завершения горутины определенного уведомления
+	activeNotificationsCancel map[uint]context.CancelFunc
 	mu                        sync.Mutex
 }
 
@@ -55,12 +53,11 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 
 func (w *Notificator) CancelNotification(id uint) {
 	w.mu.Lock()
-	cancel, ok := w.activeNotificationsCancel[id]
-	if ok {
+	defer w.mu.Unlock()
+	if cancel, ok := w.activeNotificationsCancel[id]; ok {
 		cancel()
 		delete(w.activeNotificationsCancel, id)
 	}
-	w.mu.Unlock()
 	log.Println("notification", id, "cancelled")
 }
 
@@ -70,12 +67,12 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 	w.mu.Lock()
 	w.activeNotificationsCancel[notification.ID] = cancel
 	w.mu.Unlock()
-	func(ctx context.Context) {
+
+	go func(ctx context.Context) {
 		defer func() {
-			err := recover()
-			if err != nil {
+			if err := recover(); err != nil {
 				log.Println(err)
-				msg := tgbotapi.NewMessage(0, fmt.Sprint("worker/notificator: ошибка в процессе уведомления \"", notification.Name, "\": ", err, "\n/notification_", notification.ID))
+				msg := tgbotapi.NewMessage(0, fmt.Sprintf("worker/notificator: ошибка в процессе уведомления \"%s\": %v\n/notification_%d", notification.Name, err, notification.ID))
 				w.mailer.Administrator(&msg)
 			}
 		}()
@@ -87,24 +84,24 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 				if !withWarning {
 					return
 				}
-				msg := tgbotapi.NewMessage(0, fmt.Sprint("Ошибка подсчёта времени для уведомления: \"", notification.Name, "\": ", err.Error(), ".\n\nВозможно стоит проверить настройки - /notification_", notification.ID))
+				msg := tgbotapi.NewMessage(0, fmt.Sprintf("Ошибка подсчёта времени для уведомления: \"%s\": %v.\n\nВозможно стоит проверить настройки - /notification_%d", notification.Name, err, notification.ID))
 				w.mailer.Administrator(&msg)
 				return
 			}
 
-			fmt.Println(fmt.Sprint("Уведомление \"", notification.Name, "\" будет разослано через ", sleepTime))
-			time.Sleep(sleepTime)
+			log.Println(fmt.Sprintf("Уведомление \"%s\" будет разослано через %v", notification.Name, sleepTime))
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(sleepTime):
+			}
 
-			if notification, err = w.NotificationByID(notification.ID); err != nil || notification == nil {
-				if err != nil {
-					if err == gorm.ErrRecordNotFound {
-						log.Println(err)
-						w.CancelNotification(notification.ID)
-						return
-					}
+			notification, err = w.NotificationByID(notification.ID)
+			if err != nil || notification == nil {
+				if err != nil && err != gorm.ErrRecordNotFound {
 					panic(err)
 				}
-				break
+				return
 			}
 
 			msg := tgbotapi.NewMessage(0, notification.Text)
@@ -116,7 +113,7 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 			case "admin":
 				w.mailer.Administrator(&msg)
 			default:
-				panic(fmt.Sprint("неизвестная категория пользователей для рассылки: ", notification.UserCategory))
+				panic(fmt.Sprintf("неизвестная категория пользователей для рассылки: %s", notification.UserCategory))
 			}
 		}
 	}(ctx)
@@ -127,40 +124,28 @@ func (w *Notificator) run(notifications []Notification) {
 		if w.bot.Debug {
 			return
 		}
-		err := recover()
-		if err == nil {
-			return
+		if err := recover(); err != nil {
+			log.Println(err)
+			msg := tgbotapi.NewMessage(0, fmt.Sprintf("worker/notificator упал с ошибкой: %v", err))
+			w.mailer.Administrator(&msg)
 		}
-		log.Println(err)
-		msg := tgbotapi.NewMessage(0, fmt.Sprint("worker/notificator упал с ошибкой: ", err))
-		w.mailer.Administrator(&msg)
 	}()
 
 	for _, ntfctn := range notifications {
-		func(n Notification) {
-			go w.NotificationProcess(&n, true)
-		}(ntfctn)
+		ntfctn := ntfctn
+		go w.NotificationProcess(&ntfctn, true)
 	}
 }
 
 func (w *Notificator) AddNotification(notification *Notification) error {
-	err := w.database.Create(&notification).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return w.database.Create(&notification).Error
 }
 
 func (w *Notificator) DeleteNotification(id uint) error {
-
-	err := w.database.Where("id = ?", id).Delete(&Notification{}).Error
-	if err != nil {
+	if err := w.database.Where("id = ?", id).Delete(&Notification{}).Error; err != nil {
 		return err
 	}
-
 	w.CancelNotification(id)
-
 	return nil
 }
 
@@ -173,10 +158,11 @@ func (n *Notificator) NotificationByID(id uint) (*Notification, error) {
 		}
 		return nil, err
 	}
-
 	return &notification, nil
 }
 
 func (w *Notificator) NumRunning() int {
+	w.mu.Lock()
+	defer w.mu.Unlock()
 	return len(w.activeNotificationsCancel)
 }
