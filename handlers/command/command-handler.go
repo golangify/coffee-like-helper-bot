@@ -65,7 +65,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 		{
 			string:      "/help",
 			description: "помощь",
-			argsRegexp:  regexp.MustCompile(`^\/help$`),
+			argsRegexp:  regexp.MustCompile(`^\/help(?:|(?:_| )(all))$`),
 			function:    h.Help,
 		},
 		{
@@ -132,6 +132,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			},
 			function:   h.notification,
 			isForStaff: true,
+			isHidden:   true,
 		},
 		{
 			string:      "/users [ all, admin, barista ](по умолчанию all)",
@@ -168,6 +169,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			argsRegexp:  regexp.MustCompile(`^\/info$`),
 			function:    h.info,
 			isForStaff:  true,
+			isHidden:    true,
 		},
 		{
 			string:      "/shutdown",
@@ -175,6 +177,7 @@ func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.
 			argsRegexp:  regexp.MustCompile(`^\/shutdown$`),
 			function:    h.shutdown,
 			isForStaff:  true,
+			isHidden:    true,
 		},
 	}
 	return h

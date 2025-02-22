@@ -57,8 +57,8 @@ func (w *Notificator) CancelNotification(id uint) {
 	if cancel, ok := w.activeNotificationsCancel[id]; ok {
 		cancel()
 		delete(w.activeNotificationsCancel, id)
+		log.Println("notification", id, "cancelled")
 	}
-	log.Println("notification", id, "cancelled")
 }
 
 func (w *Notificator) NotificationProcess(notification *Notification, withWarning bool) {
