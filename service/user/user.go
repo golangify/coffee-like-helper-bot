@@ -4,6 +4,7 @@ import (
 	"coffee-like-helper-bot/models"
 	"errors"
 	"slices"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -16,11 +17,13 @@ var whitelist = []string{
 }
 
 var (
-	errUserNotFound          = errors.New("пользователь не найден")
-	errUserAlreadyBanned     = errors.New("пользователь уже забанен")
-	errUserAlreadyUnbanned   = errors.New("пользователь не в бане")
-	errUserAlreadyBarista    = errors.New("пользователь уже является бариста")
-	errUserAlreadyNotBarista = errors.New("пользователь и так не является бариста")
+	errUserNotFound                = errors.New("пользователь не найден")
+	errUserAlreadyBanned           = errors.New("пользователь уже забанен")
+	errUserAlreadyUnbanned         = errors.New("пользователь не в бане")
+	errUserAlreadyBarista          = errors.New("пользователь уже является бариста")
+	errUserAlreadyNotBarista       = errors.New("пользователь и так не является бариста")
+	errUserAlreadyNotAdministrator = errors.New("пользователь уже не является администратором")
+	errUserAlreadyAdministrator    = errors.New("пользователь уже является администратором")
 )
 
 type UserService struct {
@@ -97,6 +100,34 @@ func (s *UserService) RemoveBarista(user *models.User) error {
 	}
 	user.IsBarista = false
 	if err := s.db.Model(&user).Update("is_barista", user.IsBarista).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UserService) MakeAdministrator(initiator *models.User, user *models.User) error {
+	if !slices.Contains(whitelist, initiator.UserName) {
+		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + strings.Join(whitelist, ", "))
+	}
+	if user.IsAdministrator {
+		return errUserAlreadyAdministrator
+	}
+	user.IsAdministrator = true
+	if err := s.db.Model(&user).Update("is_administrator", user.IsAdministrator).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UserService) RemoveAdministrator(user *models.User) error {
+	if slices.Contains(whitelist, user.UserName) {
+		return errors.New("нельзя удалить этого пользователя из администраторов")
+	}
+	if !user.IsAdministrator {
+		return errUserAlreadyNotAdministrator
+	}
+	user.IsAdministrator = false
+	if err := s.db.Model(&user).Update("is_administrator", user.IsAdministrator).Error; err != nil {
 		return err
 	}
 	return nil
