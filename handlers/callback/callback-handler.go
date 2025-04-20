@@ -4,7 +4,7 @@ import (
 	"coffee-like-helper-bot/config"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
-	userservise "coffee-like-helper-bot/service/user"
+	userservice "coffee-like-helper-bot/service/user"
 	workermailer "coffee-like-helper-bot/workers/mailer"
 	workernotificator "coffee-like-helper-bot/workers/notificator"
 	"fmt"
@@ -27,7 +27,7 @@ type CallbackHandler struct {
 	bot      *tgbotapi.BotAPI
 	database *gorm.DB
 
-	userService *userservise.UserService
+	userService *userservice.UserService
 
 	stepHandler *stephandler.StepHandler
 
@@ -43,7 +43,7 @@ func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm
 		bot:      bot,
 		database: database,
 
-		userService: userservise.NewUserService(database),
+		userService: userservice.NewUserService(database),
 
 		stepHandler: stepHandler,
 

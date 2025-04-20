@@ -1,4 +1,4 @@
-package userservise
+package userservice
 
 import (
 	"coffee-like-helper-bot/models"
