@@ -11,7 +11,7 @@ import (
 
 var whitelist = []string{
 	"golangify",
-	"zhukitaa",
+	// "zhukitaa",
 	"valyuhin",
 	"nikolaeva136",
 }
