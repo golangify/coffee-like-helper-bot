@@ -45,7 +45,7 @@ func main() {
 					return
 				}
 				if err := recover(); err != nil {
-					log.Println(err)
+					log.Printf("%+v", err)
 					bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Произошла ошибка: ", err, "\n\nЕсли ошибка критическая - /report")))
 				}
 			}()

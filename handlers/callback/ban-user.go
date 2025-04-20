@@ -7,36 +7,25 @@ import (
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"gorm.io/gorm"
 )
 
 func (h *CallbackHandler) banUser(update *tgbotapi.Update, user *models.User, args []string) {
-	userID, _ := strconv.ParseUint(args[1], 10, 32)
-	var euser models.User
-	err := h.database.First(&euser, userID).Error
+	targetUserID, _ := strconv.ParseUint(args[1], 10, 32)
+	targetUser, err := h.userService.UserByID(uint(targetUserID))
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Пользователь с id ", userID, " не найден.")))
-			return
-		}
 		panic(err)
 	}
-
-	euser.IsBanned = true
-	err = h.database.Model(&euser).UpdateColumn("is_banned", true).Error
-	if err != nil {
+	if err = h.userService.BanUser(targetUser); err != nil {
 		panic(err)
 	}
 
 	h.bot.Send(tgbotapi.NewEditMessageReplyMarkup(update.FromChat().ID, update.CallbackQuery.Message.MessageID,
-		*viewuser.InlineKeyboardEditList(&euser),
+		*viewuser.InlineKeyboardEditList(targetUser),
 	))
 
 	notifMsg := tgbotapi.NewMessage(0, fmt.Sprint(
-		viewuser.Text(user), " забанил(а) ", viewuser.Text(&euser),
+		viewuser.Text(user), " забанил(а) ", viewuser.Text(targetUser),
 	))
-	notifMsg.ReplyMarkup = viewuser.InlineKeyboardEdit(&euser)
+	notifMsg.ReplyMarkup = viewuser.InlineKeyboardEdit(targetUser)
 	h.mailer.Administrator(&notifMsg)
-
-	h.bot.Send(tgbotapi.NewMessage(euser.TelegramID, "Тебя забанили."))
 }
