@@ -3,32 +3,34 @@ package main
 import (
 	"coffee-like-helper-bot/config"
 	updatehandler "coffee-like-helper-bot/handlers/update"
+	"coffee-like-helper-bot/logger"
 	"coffee-like-helper-bot/models"
 	"fmt"
-	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+var log = logger.NewLoggerWithPrefix("MAIN")
+
 func main() {
 	config, err := config.JsonLoadFromFile("config.json")
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	database, err := gorm.Open(sqlite.Open(config.Database), &gorm.Config{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	if err = database.AutoMigrate(&models.User{}, &models.Menu{}, &models.Product{}, &models.Search{}); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	bot, err := tgbotapi.NewBotAPI(config.TelegramApiToken)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	log.Printf("авторизован в @%s\n", bot.Self.UserName)

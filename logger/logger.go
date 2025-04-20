@@ -1,6 +1,7 @@
 package logger
 
 type Logger interface {
-	Println(...any)
+	Println(v ...any)
+	Printf(format string, v ...any)
 	Fatal(err error)
 }
