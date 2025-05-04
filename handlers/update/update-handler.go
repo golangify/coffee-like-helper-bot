@@ -7,6 +7,8 @@ import (
 	messagehandler "coffee-like-helper-bot/handlers/message"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	menuservice "coffee-like-helper-bot/service/menu"
+	userservice "coffee-like-helper-bot/service/user"
 	viewuser "coffee-like-helper-bot/view/user"
 	workermailer "coffee-like-helper-bot/workers/mailer"
 	workernotificator "coffee-like-helper-bot/workers/notificator"
@@ -22,6 +24,9 @@ type UpdateHandler struct {
 	bot      *tgbotapi.BotAPI
 	database *gorm.DB
 
+	userService *userservice.UserService
+	menuService *menuservice.MenuService
+
 	commandHandler  *commandhandler.CommandHandler
 	callbackHandler *callbackhandler.CallbackHandler
 	messageHandler  *messagehandler.MessageHandler
@@ -32,6 +37,9 @@ type UpdateHandler struct {
 }
 
 func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHandler {
+	userService := userservice.NewUserService(database)
+	menuService := menuservice.NewMenuService(database)
+
 	stepHandler := stephandler.New(bot)
 	mailer := workermailer.New(bot, database, cfg)
 	notificator, err := workernotificator.NewNotificator(bot, database, cfg, mailer)
@@ -44,8 +52,11 @@ func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHan
 		bot:      bot,
 		database: database,
 
-		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, stepHandler, notificator),
-		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, stepHandler, mailer, notificator),
+		userService: userService,
+		menuService: menuService,
+
+		commandHandler:  commandhandler.NewCommandHandler(cfg, bot, database, menuService, stepHandler, notificator),
+		callbackHandler: callbackhandler.NewCallbackHandler(cfg, bot, database, userService, stepHandler, mailer, notificator),
 		messageHandler:  messagehandler.NewMessageHandler(bot, database),
 
 		stepHandler: stepHandler,
@@ -69,10 +80,10 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 			user = models.User{
 				TelegramID: sentFrom.ID,
 			}
-			if err = h.database.Create(&user).Error; err != nil {
+			if err = h.userService.NewUser(&user); err != nil {
 				panic(err)
 			}
-			err = h.updateUser(&user, sentFrom)
+			err = h.userService.UpdateUserInfo(&user, sentFrom)
 			if err != nil {
 				panic(err)
 			}
@@ -81,7 +92,7 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 		}
 		panic(err)
 	}
-	err = h.updateUser(&user, sentFrom)
+	err = h.userService.UpdateUserInfo(&user, sentFrom)
 	if err != nil {
 		panic(err)
 	}
@@ -121,28 +132,4 @@ func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotap
 		return
 	}
 	h.bot.Send(tgbotapi.NewMessage(sentFrom.ID, "Неподдерживаемое действие."))
-}
-
-func (h *UpdateHandler) updateUser(coffeeUser *models.User, telegramUser *tgbotapi.User) error {
-	var updated bool
-
-	if coffeeUser.FirstName != telegramUser.FirstName {
-		coffeeUser.FirstName = telegramUser.FirstName
-		updated = true
-	}
-	if coffeeUser.LastName != telegramUser.LastName {
-		coffeeUser.LastName = telegramUser.LastName
-		updated = true
-	}
-	if coffeeUser.UserName != telegramUser.UserName {
-		coffeeUser.UserName = telegramUser.UserName
-		updated = true
-	}
-
-	if updated {
-		err := h.database.Model(&coffeeUser).UpdateColumns(map[string]any{"first_name": coffeeUser.FirstName, "last_name": coffeeUser.LastName, "user_name": coffeeUser.UserName}).Error
-		return err
-	}
-
-	return nil
 }

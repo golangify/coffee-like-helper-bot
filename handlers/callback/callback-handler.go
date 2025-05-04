@@ -37,13 +37,13 @@ type CallbackHandler struct {
 	notificator *workernotificator.Notificator
 }
 
-func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer, notificator *workernotificator.Notificator) *CallbackHandler {
+func NewCallbackHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, userservice *userservice.UserService, stepHandler *stephandler.StepHandler, mailer *workermailer.Mailer, notificator *workernotificator.Notificator) *CallbackHandler {
 	h := &CallbackHandler{
 		config:   cfg,
 		bot:      bot,
 		database: database,
 
-		userService: userservice.NewUserService(database),
+		userService: userservice,
 
 		stepHandler: stepHandler,
 

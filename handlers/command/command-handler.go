@@ -4,6 +4,7 @@ import (
 	"coffee-like-helper-bot/config"
 	stephandler "coffee-like-helper-bot/handlers/step"
 	"coffee-like-helper-bot/models"
+	menuservice "coffee-like-helper-bot/service/menu"
 	workernotificator "coffee-like-helper-bot/workers/notificator"
 
 	"fmt"
@@ -38,6 +39,8 @@ type CommandHandler struct {
 	bot      *tgbotapi.BotAPI
 	database *gorm.DB
 
+	menuService *menuservice.MenuService
+
 	stepHandler *stephandler.StepHandler
 
 	notificator *workernotificator.Notificator
@@ -45,11 +48,14 @@ type CommandHandler struct {
 	commands []*command
 }
 
-func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, stepHandler *stephandler.StepHandler, notificator *workernotificator.Notificator) *CommandHandler {
+func NewCommandHandler(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB, menuservice *menuservice.MenuService, stepHandler *stephandler.StepHandler, notificator *workernotificator.Notificator) *CommandHandler {
 	h := &CommandHandler{
-		config:      cfg,
-		bot:         bot,
-		database:    database,
+		config:   cfg,
+		bot:      bot,
+		database: database,
+
+		menuService: menuservice,
+
 		stepHandler: stepHandler,
 
 		notificator: notificator,

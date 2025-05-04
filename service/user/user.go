@@ -6,14 +6,21 @@ import (
 	"slices"
 	"strings"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
 )
 
 var whitelist = []string{
 	"golangify",
-	// "zhukitaa",
+	"zhukitaa",
 	"valyuhin",
 	"nikolaeva136",
+}
+
+var whitelistString = strings.Join(whitelist, ", ")
+
+func isWhitelisted(username string) bool {
+	return slices.Contains(whitelist, username)
 }
 
 var (
@@ -58,8 +65,39 @@ func (s *UserService) UserByTgID(tgID int64) (*models.User, error) {
 	return &user, nil
 }
 
+func (s *UserService) UpdateUserInfo(user *models.User, tgProfile *tgbotapi.User) error {
+	var updated bool
+
+	if user.FirstName != tgProfile.FirstName {
+		user.FirstName = tgProfile.FirstName
+		updated = true
+	}
+	if user.LastName != tgProfile.LastName {
+		user.LastName = tgProfile.LastName
+		updated = true
+	}
+	if user.UserName != tgProfile.UserName {
+		user.UserName = tgProfile.UserName
+		updated = true
+	}
+
+	if updated {
+		err := s.db.Model(&user).UpdateColumns(map[string]any{"first_name": user.FirstName, "last_name": user.LastName, "user_name": user.UserName}).Error
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserService) NewUser(user *models.User) error {
+	if err := s.db.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *UserService) BanUser(user *models.User) error {
-	if slices.Contains(whitelist, user.UserName) {
+	if isWhitelisted(user.UserName) {
 		return errors.New("бан этого пользователя невозможен")
 	}
 	if user.IsBanned {
@@ -106,8 +144,8 @@ func (s *UserService) RemoveBarista(user *models.User) error {
 }
 
 func (s *UserService) MakeAdministrator(initiator *models.User, user *models.User) error {
-	if !slices.Contains(whitelist, initiator.UserName) {
-		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + strings.Join(whitelist, ", "))
+	if !isWhitelisted(user.UserName) {
+		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + whitelistString)
 	}
 	if user.IsAdministrator {
 		return errUserAlreadyAdministrator
@@ -120,7 +158,7 @@ func (s *UserService) MakeAdministrator(initiator *models.User, user *models.Use
 }
 
 func (s *UserService) RemoveAdministrator(user *models.User) error {
-	if slices.Contains(whitelist, user.UserName) {
+	if isWhitelisted(user.UserName) {
 		return errors.New("нельзя удалить этого пользователя из администраторов")
 	}
 	if !user.IsAdministrator {
