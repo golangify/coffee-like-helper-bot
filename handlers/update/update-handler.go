@@ -101,6 +101,8 @@ func (h *UpdateHandler) Process(update *tgbotapi.Update) {
 	h.сallHandlers(update, sentFrom, &user)
 }
 
+func isFlood() {}
+
 func (h *UpdateHandler) сallHandlers(update *tgbotapi.Update, sentFrom *tgbotapi.User, user *models.User) {
 	if user.IsBanned {
 		return

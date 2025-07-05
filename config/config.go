@@ -13,6 +13,7 @@ type Config struct {
 	path             string
 	TelegramApiToken string `json:"telegram_api_token"`
 	Database         string `json:"database"`
+	TimeZone         string `json:"timezone"`
 }
 
 func JsonLoadFromFile(path string) (*Config, error) {

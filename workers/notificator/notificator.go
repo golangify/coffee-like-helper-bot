@@ -22,6 +22,8 @@ type Notificator struct {
 	mailer   *workermailer.Mailer
 	ctx      context.Context
 
+	timeZone *time.Location
+
 	activeNotificationsCancel map[uint]context.CancelFunc
 	mu                        sync.Mutex
 }
@@ -31,12 +33,22 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 		return nil, err
 	}
 
+	if config.TimeZone == "" {
+		panic("нужно заполнить поле timezone в конфиг файле")
+	}
+	timeZone, err := time.LoadLocation(config.TimeZone)
+	if err != nil {
+		return nil, err
+	}
+
 	w := &Notificator{
-		bot:                       bot,
-		database:                  database,
-		config:                    config,
-		mailer:                    mailer,
-		ctx:                       context.Background(),
+		bot:      bot,
+		database: database,
+		config:   config,
+		mailer:   mailer,
+		ctx:      context.Background(),
+
+		timeZone:                  timeZone,
 		activeNotificationsCancel: make(map[uint]context.CancelFunc),
 	}
 

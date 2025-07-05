@@ -22,10 +22,10 @@ func (h *CommandHandler) Help(update *tgbotapi.Update, user *models.User, args [
 		}
 		msg.Text += fmt.Sprint(html.EscapeString(command.help()), "\n\n")
 	}
-	msg.Text += "Также в боте доступен быстрый поиск по всем позициям во всех меню. Для поиска достаточно отправить часть названия напитка, пример: <code>капуч</code>.\n" +
+	msg.Text += "Также в боте доступен быстрый поиск по всем позициям во всех меню. Для поиска достаточно отправить часть названия напитка, пример: <code>капуч</code>.\n\n" +
 		"Исходный код бота открыт, его можно глянуть <a href='https://github.com/golangify/coffee-like-helper-bot'>тут</a>\n"
 	if user.IsAdministrator {
-		msg.Text += "\n/help_all - для отладки"
+		msg.Text += "\n\n/help_all - для отладки"
 	}
 	msg.ParseMode = tgbotapi.ModeHTML
 	msg.ReplyMarkup = viewbot.StartKeyboard(user)
