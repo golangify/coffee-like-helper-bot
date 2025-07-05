@@ -34,11 +34,11 @@ func (h *CallbackHandler) stepEditNotificationTime(update *tgbotapi.Update, user
 	notification := args[0].(*workernotificator.Notification)
 	notificationMessageID := args[1].(int)
 	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 250 {
-		panic("в сообщении отсутсвтует текст, или он слишком длинный")
+		panic("в сообщении отсутствует текст, или он слишком длинный")
 	}
 
 	notification.HourAndMinute = update.Message.Text
-	if _, err := notification.TimeUntilNextNotification(); err != nil {
+	if _, err := notification.TimeUntilNextNotification(h.notificator.TimeZone); err != nil {
 		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, fmt.Sprint("Ошибка подсчёта нового времени отправки - ", err.Error(), "\nИзменения не сохранены.")))
 		return
 	}

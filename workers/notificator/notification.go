@@ -49,8 +49,8 @@ func (n *Notification) weekDays() ([]int, error) {
 	return weekDays, nil
 }
 
-func (n *Notification) TimeUntilNextNotification() (time.Duration, error) {
-	now := time.Now()
+func (n *Notification) TimeUntilNextNotification(timeZone *time.Location) (time.Duration, error) {
+	now := time.Now().In(timeZone)
 	currentDay := int(now.Weekday())
 	currentTime := now.Hour()*60 + now.Minute()
 

@@ -22,7 +22,7 @@ type Notificator struct {
 	mailer   *workermailer.Mailer
 	ctx      context.Context
 
-	timeZone *time.Location
+	TimeZone *time.Location
 
 	activeNotificationsCancel map[uint]context.CancelFunc
 	mu                        sync.Mutex
@@ -48,7 +48,7 @@ func NewNotificator(bot *tgbotapi.BotAPI, database *gorm.DB, config *config.Conf
 		mailer:   mailer,
 		ctx:      context.Background(),
 
-		timeZone:                  timeZone,
+		TimeZone:                  timeZone,
 		activeNotificationsCancel: make(map[uint]context.CancelFunc),
 	}
 
@@ -90,7 +90,7 @@ func (w *Notificator) NotificationProcess(notification *Notification, withWarnin
 		}()
 
 		for {
-			sleepTime, err := notification.TimeUntilNextNotification()
+			sleepTime, err := notification.TimeUntilNextNotification(w.TimeZone)
 			if err != nil {
 				log.Println(err)
 				if !withWarning {
