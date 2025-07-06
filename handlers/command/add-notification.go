@@ -9,8 +9,8 @@ import (
 )
 
 func (h *CommandHandler) addNotification(update *tgbotapi.Update, user *models.User, _ []string) {
-	h.stepHandler.AddStepHandler(user.ID, h.stepAddNotificationName, nil)
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название для уведомления\n\n/cancel - отмена"))
+	h.stepHandler.AddText(user, h.stepAddNotificationName, nil)
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название для уведомления:"))
 }
 
 func (h *CommandHandler) stepAddNotificationName(update *tgbotapi.Update, user *models.User, _ []any) {

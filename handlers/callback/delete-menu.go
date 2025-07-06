@@ -22,9 +22,9 @@ func (h *CallbackHandler) deleteMenu(update *tgbotapi.Update, user *models.User,
 	}
 
 	checkPhrase := fmt.Sprint("удалить \"", menu.Name, "\" вместе с напитками")
-	h.stepHandler.AddStepHandler(user.ID, h.stepDeleteMenu, []any{menu.ID, checkPhrase})
+	h.stepHandler.AddText(user, h.stepDeleteMenu, []any{menu.ID, checkPhrase})
 
-	msg := tgbotapi.NewMessage(update.FromChat().ID, "<b>ВНИМАНИЕ</b>\nЭто действие удалит меню и все напитки в нём!\n\nОтправь(можно нажать на текст ниже для копирования)\n\n<code>"+checkPhrase+"</code>\n\nдля потдверждения.\n\n/cancel для отмены")
+	msg := tgbotapi.NewMessage(update.FromChat().ID, "<b>ВНИМАНИЕ</b>\nЭто действие удалит меню и все напитки в нём!\n\nОтправь(можно нажать на текст ниже для копирования)\n\n<code>"+checkPhrase+"</code>\n\nдля потдверждения:")
 	msg.ParseMode = tgbotapi.ModeHTML
 
 	h.bot.Send(msg)
@@ -42,15 +42,6 @@ func (h *CallbackHandler) stepDeleteMenu(update *tgbotapi.Update, user *models.U
 			return
 		}
 		panic(err)
-	}
-
-	if update.Message == nil || update.Message.Text == "" {
-		panic("это не сообщение")
-	}
-
-	if update.Message.Text == "/cancel" {
-		h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Удаление успешно отменено."))
-		return
 	}
 
 	if update.Message.Text != checkPhrase {

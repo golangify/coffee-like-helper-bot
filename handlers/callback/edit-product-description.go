@@ -2,11 +2,12 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu/product"
+	viewproduct "coffee-like-helper-bot/view/menu/product"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) editProductDescription(update *tgbotapi.Update, user *models.User, args []string) {
@@ -20,15 +21,12 @@ func (h *CallbackHandler) editProductDescription(update *tgbotapi.Update, user *
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.stepUpdateProductDescription, []any{product.ID})
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое описание напитка(отмена /cancel):"))
+	h.stepHandler.AddText(user, h.stepUpdateProductDescription, []any{product.ID})
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое описание напитка:"))
 }
 
 // args: models.Product.ID
 func (h *CallbackHandler) stepUpdateProductDescription(update *tgbotapi.Update, user *models.User, args []any) {
-	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 1000 {
-		panic("в сообщении отсутсвтует текст описания напитка, или он слишком длинный")
-	}
 	productID := args[0].(uint)
 	var product models.Product
 	err := h.database.First(&product, productID).Error

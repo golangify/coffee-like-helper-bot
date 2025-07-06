@@ -23,8 +23,8 @@ func (h *CallbackHandler) editNotificationTime(update *tgbotapi.Update, user *mo
 		panic(err)
 	}
 
-	h.stepHandler.AddStepHandler(user.ID, h.stepEditNotificationTime, []any{&notification, update.CallbackQuery.Message.MessageID})
-	msg := tgbotapi.NewMessage(update.FromChat().ID, "Отправь время. Пример: <code>20:30</code> - будет приходить в пол девятого вечера.\n\n/cancel - отмена")
+	h.stepHandler.AddText(user, h.stepEditNotificationTime, []any{&notification, update.CallbackQuery.Message.MessageID})
+	msg := tgbotapi.NewMessage(update.FromChat().ID, "Отправь время. Пример: <code>20:30</code> - будет приходить в пол девятого вечера:")
 	msg.ParseMode = tgbotapi.ModeHTML
 	h.bot.Send(msg)
 }
@@ -33,9 +33,6 @@ func (h *CallbackHandler) editNotificationTime(update *tgbotapi.Update, user *mo
 func (h *CallbackHandler) stepEditNotificationTime(update *tgbotapi.Update, user *models.User, args []any) {
 	notification := args[0].(*workernotificator.Notification)
 	notificationMessageID := args[1].(int)
-	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 250 {
-		panic("в сообщении отсутствует текст, или он слишком длинный")
-	}
 
 	notification.HourAndMinute = update.Message.Text
 	if _, err := notification.TimeUntilNextNotification(h.notificator.TimeZone); err != nil {

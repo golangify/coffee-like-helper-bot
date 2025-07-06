@@ -10,8 +10,8 @@ import (
 )
 
 func (h *CommandHandler) report(update *tgbotapi.Update, user *models.User, _ []string) {
-	h.stepHandler.AddStepHandler(user.ID, h.StepReport, nil)
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Опиши ошибку:\nпосле каких действий она возникает и скриншот ошибки. Заранее спасибо!\n\n/cancel - отмена"))
+	h.stepHandler.AddAny(user, h.StepReport, nil)
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Опиши ошибку:\nпосле каких действий она возникает и скриншот ошибки. Заранее спасибо!"))
 }
 
 func (h *CommandHandler) StepReport(update *tgbotapi.Update, user *models.User, _ []any) {

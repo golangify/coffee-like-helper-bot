@@ -10,15 +10,11 @@ import (
 const maxMenuNameLength = 250
 
 func (h *CommandHandler) AddMenu(update *tgbotapi.Update, user *models.User, _ []string) {
-	h.stepHandler.AddStepHandler(user.ID, h.StepAddMenuName, nil)
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название меню:\n\n/cancel - отмена"))
+	h.stepHandler.AddText(user, h.StepAddMenuName, nil)
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь название меню:"))
 }
 
 func (h *CommandHandler) StepAddMenuName(update *tgbotapi.Update, user *models.User, _ []any) {
-	if update.Message == nil || update.Message.Text == "" || len([]rune(update.Message.Text)) > maxMenuNameLength {
-		panic("в сообщении отсутствует текст или он слишком длинный")
-	}
-
 	newMenu := models.Menu{
 		Name: update.Message.Text,
 	}

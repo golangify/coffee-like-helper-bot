@@ -22,15 +22,12 @@ func (h *CallbackHandler) editNotificationText(update *tgbotapi.Update, user *mo
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.stepEditNotificationText, []any{update, &notification})
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новый текст для уведомления:\n\n/cancel - отмена"))
+	h.stepHandler.AddText(user, h.stepEditNotificationText, []any{update, &notification})
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новый текст для уведомления:"))
 }
 
 // args: tgbotapi.Update, *workernotificator.Notification
 func (h *CallbackHandler) stepEditNotificationText(update *tgbotapi.Update, user *models.User, args []any) {
-	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 250 {
-		panic("в сообщении отсутсвтует текст для уведомления, или он слишком длинный")
-	}
 	sourceUpdate := args[0].(*tgbotapi.Update)
 	notification := args[1].(*workernotificator.Notification)
 	notification.Text = update.Message.Text

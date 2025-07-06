@@ -2,11 +2,12 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu"
+	viewmenu "coffee-like-helper-bot/view/menu"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) editMenuName(update *tgbotapi.Update, user *models.User, args []string) {
@@ -20,15 +21,12 @@ func (h *CallbackHandler) editMenuName(update *tgbotapi.Update, user *models.Use
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.StepUpdateMenuName, []any{uint(menuID)})
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое название меню(отмена /cancel):"))
+	h.stepHandler.AddText(user, h.StepUpdateMenuName, []any{uint(menuID)})
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое название меню:"))
 }
 
 // args: models.Menu.ID
 func (h *CallbackHandler) StepUpdateMenuName(update *tgbotapi.Update, user *models.User, args []any) {
-	if update.Message == nil || update.Message.Text == "" || len(update.Message.Text) > 250 {
-		panic("в сообщении отсутсвтует текст названия меню, или он слишком длинный")
-	}
 	menuID := args[0].(uint)
 	var menu models.Menu
 	err := h.database.First(&menu, menuID).Error

@@ -2,11 +2,12 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu"
+	viewmenu "coffee-like-helper-bot/view/menu"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) editMenuDescription(update *tgbotapi.Update, user *models.User, args []string) {
@@ -20,8 +21,8 @@ func (h *CallbackHandler) editMenuDescription(update *tgbotapi.Update, user *mod
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.StepUpdateMenuDescription, []any{uint(menuID)})
-	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое описание меню(отмена /cancel):"))
+	h.stepHandler.AddText(user, h.StepUpdateMenuDescription, []any{uint(menuID)})
+	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое описание меню:"))
 }
 
 // args: models.Menu.ID

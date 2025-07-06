@@ -2,11 +2,12 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu/product"
+	viewproduct "coffee-like-helper-bot/view/menu/product"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) addProductToMenu(update *tgbotapi.Update, user *models.User, args []string) {
@@ -20,7 +21,7 @@ func (h *CallbackHandler) addProductToMenu(update *tgbotapi.Update, user *models
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.stepAddProductToMenu, []any{uint(menuID)})
+	h.stepHandler.AddText(user, h.stepAddProductToMenu, []any{uint(menuID)})
 	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Отправь новое название напитка:"))
 }
 

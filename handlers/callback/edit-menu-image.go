@@ -2,11 +2,12 @@ package callbackhandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu"
+	viewmenu "coffee-like-helper-bot/view/menu"
 	"fmt"
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func (h *CallbackHandler) editMenuImage(update *tgbotapi.Update, user *models.User, args []string) {
@@ -20,11 +21,10 @@ func (h *CallbackHandler) editMenuImage(update *tgbotapi.Update, user *models.Us
 		}
 		panic(err)
 	}
-	h.stepHandler.AddStepHandler(user.ID, h.StepUpdateMenuImage, []any{uint(menuID)})
+	h.stepHandler.AddImage(user, h.StepUpdateMenuImage, []any{uint(menuID)})
 	h.bot.Send(tgbotapi.NewMessage(update.FromChat().ID,
 		"Чтобы добавить изображение - просто отправь изображение.\n\n"+
-			"Чтобы удалить изображение - /delete\n\n"+
-			"Отмена - /cancel",
+			"Чтобы удалить изображение - /delete",
 	))
 }
 
@@ -54,10 +54,6 @@ func (h *CallbackHandler) StepUpdateMenuImage(update *tgbotapi.Update, user *mod
 			}
 			return
 		}
-	}
-
-	if update.Message == nil || update.Message.Photo == nil || len(update.Message.Photo) == 0 {
-		panic("это не изображение")
 	}
 
 	menu.ImageFileID = &update.Message.Photo[0].FileID
