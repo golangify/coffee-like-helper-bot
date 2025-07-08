@@ -1,7 +1,10 @@
 package messagehandler
 
 import (
+	"coffee-like-helper-bot/config"
 	"coffee-like-helper-bot/models"
+	"coffee-like-helper-bot/service/search"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
 )
@@ -9,12 +12,16 @@ import (
 type MessageHandler struct {
 	bot      *tgbotapi.BotAPI
 	database *gorm.DB
+
+	searchEngine *search.SearchEngine
 }
 
-func NewMessageHandler(bot *tgbotapi.BotAPI, database *gorm.DB) *MessageHandler {
+func NewMessageHandler(config *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *MessageHandler {
 	h := &MessageHandler{
 		bot:      bot,
 		database: database,
+
+		searchEngine: search.NewEngine(config, database),
 	}
 	return h
 }

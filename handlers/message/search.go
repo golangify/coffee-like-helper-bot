@@ -2,9 +2,10 @@ package messagehandler
 
 import (
 	"coffee-like-helper-bot/models"
-	"coffee-like-helper-bot/view/menu/product"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	viewproduct "coffee-like-helper-bot/view/menu/product"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func prepareQueryString(queryString string) string {
@@ -40,19 +41,9 @@ func (h *MessageHandler) Search(update *tgbotapi.Update, user *models.User) {
 		UserID: user.ID,
 	})
 
-	query := prepareQueryString(update.Message.Text)
-
-	var products []models.Product
-	err := h.database.Find(&products).Error
+	results, err := h.searchEngine.SearchProducts(update.Message.Text)
 	if err != nil {
 		panic(err)
-	}
-
-	var results []models.Product
-	for _, product := range products {
-		if strings.Contains(prepareQueryString(product.Name), query) {
-			results = append(results, product)
-		}
 	}
 
 	if len(results) == 0 {

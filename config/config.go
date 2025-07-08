@@ -11,9 +11,10 @@ const filePerm = 0644
 
 type Config struct {
 	path             string
-	TelegramApiToken string `json:"telegram_api_token"`
-	Database         string `json:"database"`
-	TimeZone         string `json:"timezone"`
+	TelegramApiToken string  `json:"telegram_api_token"`
+	Database         string  `json:"database"`
+	TimeZone         string  `json:"timezone"`
+	SearchSensitive  float64 `json:"search_sensitive"`
 }
 
 func JsonLoadFromFile(path string) (*Config, error) {

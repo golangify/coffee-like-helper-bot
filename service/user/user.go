@@ -114,7 +114,7 @@ func (s *UserService) UnbanUser(user *models.User) error {
 	if !user.IsBanned {
 		return errUserAlreadyUnbanned
 	}
-	user.IsBanned = true
+	user.IsBanned = false
 	if err := s.db.Model(&user).Update("is_banned", user.IsBanned).Error; err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (s *UserService) RemoveBarista(user *models.User) error {
 }
 
 func (s *UserService) MakeAdministrator(initiator *models.User, user *models.User) error {
-	if !isWhitelisted(user.UserName) {
+	if !isWhitelisted(initiator.UserName) {
 		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + whitelistString)
 	}
 	if user.IsAdministrator {

@@ -15,7 +15,7 @@ func (h *CallbackHandler) makeBarista(update *tgbotapi.Update, user *models.User
 	if err != nil {
 		panic(err)
 	}
-	if err = h.userService.MakeBarista(user); err != nil {
+	if err = h.userService.MakeBarista(targetUser); err != nil {
 		panic(err)
 	}
 
