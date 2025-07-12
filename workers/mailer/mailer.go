@@ -4,6 +4,8 @@ import (
 	"coffee-like-helper-bot/config"
 	"coffee-like-helper-bot/logger"
 	"coffee-like-helper-bot/models"
+	viewuser "coffee-like-helper-bot/view/user"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -36,7 +38,19 @@ func (w *Mailer) mail(users []models.User, msg *tgbotapi.MessageConfig) error {
 		msg.BaseChat.ChatID = user.TelegramID
 		_, err := w.bot.Send(msg)
 		if err != nil {
-			log.Println(err)
+			if strings.Contains(err.Error(), "bot was blocked by the user") { // TODO: придумать лучше, чем искать вхождение строки ожидаемой ошибки в строку фактической ошибки
+				if err := w.database.Model(&user).UpdateColumns(map[string]any{
+					"is_barista":       false,
+					"is_administrator": false,
+				}).Error; err != nil {
+					log.Println(err)
+				} else {
+					msg := tgbotapi.NewMessage(0, "У пользователя "+viewuser.Text(&user)+" отозван доступ, т.к. он заблокировал бота.")
+					w.Administrator(&msg)
+				}
+			} else {
+				log.Println(err)
+			}
 		}
 	}
 	return nil

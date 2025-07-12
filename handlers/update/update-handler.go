@@ -37,7 +37,7 @@ type UpdateHandler struct {
 }
 
 func New(cfg *config.Config, bot *tgbotapi.BotAPI, database *gorm.DB) *UpdateHandler {
-	userService := userservice.NewUserService(database)
+	userService := userservice.NewUserService(cfg, database)
 	menuService := menuservice.NewMenuService(database)
 
 	stepHandler := stephandler.New(bot)

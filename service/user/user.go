@@ -1,6 +1,7 @@
 package userservice
 
 import (
+	"coffee-like-helper-bot/config"
 	"coffee-like-helper-bot/models"
 	"errors"
 	"slices"
@@ -10,37 +11,30 @@ import (
 	"gorm.io/gorm"
 )
 
-var whitelist = []string{
-	"golangify",
-	"zhukitaa",
-	"valyuhin",
-	"nikolaeva136",
-}
-
-var whitelistString = strings.Join(whitelist, ", ")
-
-func isWhitelisted(username string) bool {
-	return slices.Contains(whitelist, username)
-}
-
 var (
-	errUserNotFound                = errors.New("пользователь не найден")
-	errUserAlreadyBanned           = errors.New("пользователь уже забанен")
-	errUserAlreadyUnbanned         = errors.New("пользователь не в бане")
-	errUserAlreadyBarista          = errors.New("пользователь уже является бариста")
-	errUserAlreadyNotBarista       = errors.New("пользователь и так не является бариста")
-	errUserAlreadyNotAdministrator = errors.New("пользователь уже не является администратором")
-	errUserAlreadyAdministrator    = errors.New("пользователь уже является администратором")
+	errUserNotFound             = errors.New("пользователь не найден")
+	errUserAlreadyBanned        = errors.New("пользователь уже забанен")
+	errUserNotBanned            = errors.New("пользователь не забанен")
+	errUserAlreadyBarista       = errors.New("пользователь уже является бариста")
+	errUserNotBarista           = errors.New("пользователь не является бариста")
+	errUserNotAdministrator     = errors.New("пользователь не является администратором")
+	errUserAlreadyAdministrator = errors.New("пользователь уже является администратором")
 )
 
 type UserService struct {
-	db *gorm.DB
+	config *config.Config
+	db     *gorm.DB
 }
 
-func NewUserService(db *gorm.DB) *UserService {
+func NewUserService(config *config.Config, db *gorm.DB) *UserService {
 	return &UserService{
-		db: db,
+		config: config,
+		db:     db,
 	}
+}
+
+func (s *UserService) IsWhitelisted(username string) bool {
+	return slices.Contains(s.config.Whitelist, username)
 }
 
 func (s *UserService) UserByID(id uint) (*models.User, error) {
@@ -97,7 +91,7 @@ func (s *UserService) NewUser(user *models.User) error {
 }
 
 func (s *UserService) BanUser(user *models.User) error {
-	if isWhitelisted(user.UserName) {
+	if s.IsWhitelisted(user.UserName) {
 		return errors.New("бан этого пользователя невозможен")
 	}
 	if user.IsBanned {
@@ -112,7 +106,7 @@ func (s *UserService) BanUser(user *models.User) error {
 
 func (s *UserService) UnbanUser(user *models.User) error {
 	if !user.IsBanned {
-		return errUserAlreadyUnbanned
+		return errUserNotBanned
 	}
 	user.IsBanned = false
 	if err := s.db.Model(&user).Update("is_banned", user.IsBanned).Error; err != nil {
@@ -134,7 +128,7 @@ func (s *UserService) MakeBarista(user *models.User) error {
 
 func (s *UserService) RemoveBarista(user *models.User) error {
 	if !user.IsBarista {
-		return errUserAlreadyNotBarista
+		return errUserNotBarista
 	}
 	user.IsBarista = false
 	if err := s.db.Model(&user).Update("is_barista", user.IsBarista).Error; err != nil {
@@ -144,8 +138,8 @@ func (s *UserService) RemoveBarista(user *models.User) error {
 }
 
 func (s *UserService) MakeAdministrator(initiator *models.User, user *models.User) error {
-	if !isWhitelisted(initiator.UserName) {
-		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + whitelistString)
+	if !s.IsWhitelisted(initiator.UserName) {
+		return errors.New("к сожалению только эти администраторы могут назначать новых администраторов: " + strings.Join(s.config.Whitelist, ", "))
 	}
 	if user.IsAdministrator {
 		return errUserAlreadyAdministrator
@@ -158,11 +152,11 @@ func (s *UserService) MakeAdministrator(initiator *models.User, user *models.Use
 }
 
 func (s *UserService) RemoveAdministrator(user *models.User) error {
-	if isWhitelisted(user.UserName) {
+	if s.IsWhitelisted(user.UserName) {
 		return errors.New("нельзя удалить этого пользователя из администраторов")
 	}
 	if !user.IsAdministrator {
-		return errUserAlreadyNotAdministrator
+		return errUserNotAdministrator
 	}
 	user.IsAdministrator = false
 	if err := s.db.Model(&user).Update("is_administrator", user.IsAdministrator).Error; err != nil {
