@@ -9,7 +9,7 @@ import (
 func StartKeyboard(user *models.User) *tgbotapi.ReplyKeyboardMarkup {
 	keyboard := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton("Меню")),
-		tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton("Помощь")),
+		tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton("/help")),
 	)
 	return &keyboard
 }
