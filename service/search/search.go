@@ -4,11 +4,10 @@ import (
 	"coffee-like-helper-bot/config"
 	"coffee-like-helper-bot/models"
 	"coffee-like-helper-bot/service/search/levenshtein"
+	"strings"
 
 	"gorm.io/gorm"
 )
-
-const sens float64 = 78
 
 type SearchEngine struct {
 	config   *config.Config
@@ -33,7 +32,8 @@ func (e *SearchEngine) SearchProducts(query string) ([]models.Product, error) {
 
 	var results []models.Product
 	for _, product := range products {
-		if levenshtein.Fuzzy(query, prepareQueryString(product.Name)) > e.config.SearchSensitive {
+		s := prepareQueryString(product.Name)
+		if levenshtein.Fuzzy(query, s) > e.config.SearchSensitive || strings.Contains(s, query) {
 			results = append(results, product)
 		}
 	}
