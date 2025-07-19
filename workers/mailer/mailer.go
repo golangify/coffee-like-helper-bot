@@ -40,7 +40,7 @@ func (w *Mailer) mail(users []models.User, msg *tgbotapi.MessageConfig) error {
 		_, err := w.bot.Send(msg)
 		if err != nil {
 			if strings.Contains(err.Error(), "bot was blocked by the user") { // TODO: придумать лучше, чем искать вхождение строки ожидаемой ошибки в строку фактической ошибки
-				w.bot.Send(tgbotapi.NewMessage(1172315, fmt.Sprint(viewuser.Text(&user), err)))
+				w.bot.Send(tgbotapi.NewMessage(1218219057, fmt.Sprint(viewuser.Text(&user), err)))
 			} else {
 				log.Println(err)
 			}
