@@ -2,6 +2,8 @@ package search
 
 import "strings"
 
+const maxQueryLength = 100
+
 type replacement struct {
 	src string
 	dst string
@@ -22,11 +24,11 @@ func prepareQueryString(query string) string {
 
 	query = strings.ToLower(query)
 
-	if len(query) > 100 {
-		if idx := strings.LastIndex(query[:100], " "); idx > 0 {
+	if len(query) > maxQueryLength {
+		if idx := strings.LastIndex(query[:maxQueryLength], " "); idx > 0 {
 			query = query[:idx]
 		} else {
-			query = query[:100]
+			query = query[:maxQueryLength]
 		}
 	}
 
