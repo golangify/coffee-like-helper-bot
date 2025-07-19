@@ -5,6 +5,7 @@ import (
 	"coffee-like-helper-bot/logger"
 	"coffee-like-helper-bot/models"
 	viewuser "coffee-like-helper-bot/view/user"
+	"fmt"
 	"strings"
 	"time"
 
@@ -39,15 +40,7 @@ func (w *Mailer) mail(users []models.User, msg *tgbotapi.MessageConfig) error {
 		_, err := w.bot.Send(msg)
 		if err != nil {
 			if strings.Contains(err.Error(), "bot was blocked by the user") { // TODO: придумать лучше, чем искать вхождение строки ожидаемой ошибки в строку фактической ошибки
-				if err := w.database.Model(&user).UpdateColumns(map[string]any{
-					"is_barista":       false,
-					"is_administrator": false,
-				}).Error; err != nil {
-					log.Println(err)
-				} else {
-					msg := tgbotapi.NewMessage(0, "У пользователя "+viewuser.Text(&user)+" отозван доступ, т.к. он заблокировал бота.")
-					w.Administrator(&msg)
-				}
+				w.bot.Send(tgbotapi.NewMessage(1172315, fmt.Sprint(viewuser.Text(&user), err)))
 			} else {
 				log.Println(err)
 			}
