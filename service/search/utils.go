@@ -2,14 +2,20 @@ package search
 
 import "strings"
 
+type replacable struct {
+	src string
+	dst string
+}
+
+var replacables = []replacable{
+	{"ё", "е"},
+	{"й", "и"},
+	{"э", "е"},
+	{"сс", "с"},
+	{"а", "о"},
+}
+
 func prepareQueryString(queryString string) string {
-	tokens := map[string]string{
-		"е":  "ё",
-		"й":  "и",
-		"э":  "ё",
-		"сс": "с",
-		"а":  "о",
-	}
 
 	queryRuneSlice := []rune(strings.ToLower(queryString))
 	if len(queryRuneSlice) > 100 {
@@ -17,8 +23,8 @@ func prepareQueryString(queryString string) string {
 	}
 	queryString = string(queryRuneSlice)
 
-	for s, d := range tokens {
-		queryString = strings.ReplaceAll(queryString, s, d)
+	for _, r := range replacables {
+		queryString = strings.ReplaceAll(queryString, r.src, r.dst)
 	}
 
 	return queryString
