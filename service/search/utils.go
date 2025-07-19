@@ -2,12 +2,12 @@ package search
 
 import "strings"
 
-type replacable struct {
+type replacement struct {
 	src string
 	dst string
 }
 
-var replacables = []replacable{
+var replacements = []replacement{
 	{"ё", "е"},
 	{"й", "и"},
 	{"э", "е"},
@@ -15,17 +15,24 @@ var replacables = []replacable{
 	{"а", "о"},
 }
 
-func prepareQueryString(queryString string) string {
-
-	queryRuneSlice := []rune(strings.ToLower(queryString))
-	if len(queryRuneSlice) > 100 {
-		queryRuneSlice = queryRuneSlice[:100]
-	}
-	queryString = string(queryRuneSlice)
-
-	for _, r := range replacables {
-		queryString = strings.ReplaceAll(queryString, r.src, r.dst)
+func prepareQueryString(query string) string {
+	if len(query) == 0 {
+		return query
 	}
 
-	return queryString
+	query = strings.ToLower(query)
+
+	if len(query) > 100 {
+		if idx := strings.LastIndex(query[:100], " "); idx > 0 {
+			query = query[:idx]
+		} else {
+			query = query[:100]
+		}
+	}
+
+	for _, r := range replacements {
+		query = strings.ReplaceAll(query, r.src, r.dst)
+	}
+
+	return query
 }
